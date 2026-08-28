@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f3f0e7">
+  <meta name="application-name" content="小羊工作台">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="小羊工作台">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
+  <title>小羊工作台</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css?v=22">
+  <link rel="stylesheet" href="theme-mobile.css?v=22">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand-copy">
+        <p class="eyebrow" id="todayLabel">今天</p>
+        <h1>小羊工作台</h1>
+        <p class="brand-note">一日一进，徐徐有得</p>
+      </div>
+      <span class="today-status" aria-label="今日状态"><i></i>今日</span>
+    </header>
+
+    <main>
+      <section class="view active" id="view-home">
+        <div class="banner" id="homeBanner" hidden></div>
+
+        <section class="panel home-primary-panel">
+          <div class="section-head">
+            <h3>静修</h3>
+            <span id="homeStillnessMeta">今天 0 分钟</span>
+          </div>
+          <div class="home-habit-grid" id="homeHabitGrid"></div>
+        </section>
+
+        <section class="panel home-schedule-panel">
+          <div class="section-head">
+            <h3>今天的课程</h3>
+            <span id="todayScheduleMeta">今天没有课</span>
+          </div>
+          <div class="compact-list" id="homeScheduleList"></div>
+        </section>
+
+        <section class="panel run-summary-panel">
+          <div class="section-head">
+            <h3>跑步</h3>
+            <div class="head-actions">
+              <span id="homeRunMeta">今天 0.00 公里</span>
+              <button class="secondary-button" type="button" data-jump="running">记录</button>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="view" id="view-stillness" aria-labelledby="stillnessTitle">
+        <div class="section-head">
+          <h2 id="stillnessTitle">记录</h2>
+          <span>静修</span>
+        </div>
+        <div class="section-tabs" aria-label="记录类型">
+          <button class="section-tab active" type="button" data-view="stillness">静修</button>
+          <button class="section-tab" type="button" data-view="running">跑步</button>
+        </div>
+        <div class="timer-grid" id="habitTimerGrid"></div>
+      </section>
+
+      <section class="view" id="view-running" aria-labelledby="runningTitle">
+        <div class="section-head">
+          <h2 id="runningTitle">记录</h2>
+          <span>跑步</span>
+        </div>
+        <div class="section-tabs" aria-label="记录类型">
+          <button class="section-tab" type="button" data-view="stillness">静修</button>
+          <button class="section-tab active" type="button" data-view="running">跑步</button>
+        </div>
+
+        <section class="panel">
+          <form id="runForm" class="stack-form">
+            <div class="field-row">
+              <label>日期<input id="runDate" type="date" required></label>
+              <label>距离 km<input id="runDistance" type="number" min="0.01" step="0.01" placeholder="例如 3.50" required></label>
+            </div>
+            <div class="field-row">
+              <label>用时 分<input id="runMinutes" type="number" min="0" step="1" placeholder="例如 28"></label>
+              <label>秒<input id="runSeconds" type="number" min="0" max="59" step="1" placeholder="例如 30"></label>
+              <label>备注<input id="runNote" type="text" placeholder="留空即可"></label>
+            </div>
+            <div class="stopwatch-row">
+              <button class="secondary-button" id="runTimerButton" type="button">开始计时</button>
+              <span class="stopwatch-display" id="runTimerDisplay">00:00</span>
+            </div>
+            <div class="button-row">
+              <button class="primary-button" type="submit">保存跑步</button>
+            </div>
+            <p class="form-note" id="runDraftHint" hidden></p>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <h3>最近记录</h3>
+            <span id="runListMeta">0 次</span>
+          </div>
+          <div class="compact-list" id="runList"></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-schedule" aria-labelledby="scheduleTitle">
+        <div class="section-head">
+          <h2 id="scheduleTitle">课表</h2>
+        </div>
+
+        <div class="banner" id="nowBanner"></div>
+
+        <div class="period-nav">
+          <button class="secondary-button" id="weekPrevButton" type="button">◀ 上一周</button>
+          <span class="period-label" id="weekNavLabel"></span>
+          <button class="secondary-button" id="weekNextButton" type="button">下一周 ▶</button>
+        </div>
+
+        <details class="panel schedule-tools">
+          <summary>本周操作</summary>
+          <div class="button-row">
+            <button class="secondary-button" id="backToCurrentWeekButton" type="button">回到本周</button>
+            <button class="secondary-button" id="copyLastWeekButton" type="button">复制上周课表</button>
+            <button class="secondary-button" id="clearWeekTitlesButton" type="button">清空本周课名</button>
+          </div>
+        </details>
+
+        <div class="day-tabs" id="dayTabs"></div>
+        <div class="schedule-list" id="scheduleEditor"></div>
+
+        <section class="panel">
+          <div class="section-head">
+            <h3>周报告</h3>
+            <button class="secondary-button" id="weekReportButton" type="button">生成周报告</button>
+          </div>
+          <pre class="report-output" id="weekReportOutput">点「生成周报告」查看当前周的汇总。</pre>
+        </section>
+      </section>
+
+      <section class="view" id="view-reports" aria-labelledby="reportsTitle">
+        <div class="section-head">
+          <h2 id="reportsTitle">报告</h2>
+          <span>文字</span>
+        </div>
+        <div class="section-tabs" aria-label="更多功能">
+          <button class="section-tab active" type="button" data-view="reports">报告</button>
+          <button class="section-tab" type="button" data-view="settings">设置</button>
+        </div>
+
+        <section class="panel">
+          <div class="field-row">
+            <label>内容
+              <select id="reportKind">
+                <option value="stillness">静修</option>
+                <option value="running">跑步</option>
+                <option value="schedule">课表</option>
+                <option value="weekly">每周总结</option>
+              </select>
+            </label>
+            <label>区间
+              <select id="reportRange">
+                <option value="day">日</option>
+                <option value="week">周</option>
+                <option value="month">月</option>
+              </select>
+            </label>
+          </div>
+          <div class="field-row">
+            <label id="reportHabitField">静修类型
+              <select id="reportHabit">
+                <option value="all">全部</option>
+                <option value="meditation">冥想</option>
+                <option value="standing">站桩</option>
+                <option value="reading">读书</option>
+                <option value="walking">散步</option>
+              </select>
+            </label>
+            <label>参考日期<input id="reportDate" type="date"></label>
+          </div>
+          <div class="period-nav">
+            <button class="secondary-button" id="periodPrevButton" type="button">◀ 上一周期</button>
+            <span class="period-label" id="periodLabel"></span>
+            <button class="secondary-button" id="periodNextButton" type="button">下一周期 ▶</button>
+          </div>
+          <div class="button-row">
+            <button class="secondary-button" id="periodTodayButton" type="button">回到本周期</button>
+            <button class="secondary-button" id="copyReportButton" type="button">复制报告</button>
+            <button class="secondary-button" id="exportReportButton" type="button">导出文本</button>
+          </div>
+        </section>
+
+        <pre class="report-output" id="reportOutput">选好内容、区间和日期，报告会显示在这里。</pre>
+
+        <details class="panel manager-panel">
+          <summary>删除记录</summary>
+          <div class="manager-list" id="managerList"></div>
+        </details>
+      </section>
+
+      <section class="view" id="view-settings" aria-labelledby="settingsTitle">
+        <div class="section-head">
+          <h2 id="settingsTitle">设置</h2>
+          <span>数据</span>
+        </div>
+        <div class="section-tabs" aria-label="更多功能">
+          <button class="section-tab" type="button" data-view="reports">报告</button>
+          <button class="section-tab active" type="button" data-view="settings">设置</button>
+        </div>
+
+        <section class="panel">
+          <form id="settingsForm" class="stack-form">
+            <div class="field-row">
+              <label>每公里消耗（大卡）<input id="caloriesPerKm" type="number" min="20" max="160" step="1"></label>
+              <label>课间时长（分钟）<input id="breakMinutes" type="number" min="5" max="120" step="5"></label>
+            </div>
+            <p class="form-note">热量默认按 1 公里 ≈ 60 大卡估算。课间时长决定上午、下午第2节课的开始时间，保存后点下方按钮应用到当前周。</p>
+            <div class="button-row">
+              <button class="primary-button" type="submit">保存设置</button>
+              <button class="secondary-button" id="applyBreakButton" type="button">应用到当前周</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <h3>数据备份</h3>
+          </div>
+          <p class="form-note">数据保存在本机浏览器里，换设备或清理浏览器前先导出备份。</p>
+          <div class="button-row">
+            <button class="secondary-button" id="backupButton" type="button">导出备份</button>
+            <label class="file-button">
+              恢复备份
+              <input id="restoreInput" type="file" accept="application/json">
+            </label>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="主导航">
+      <button class="nav-item active" type="button" data-view="home">
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"></path><path d="M9 22V12h6v10"></path></svg>
+        <span class="nav-label">今天</span>
+      </button>
+      <button class="nav-item" type="button" data-view="stillness" data-nav-group="record">
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2"></path><path d="M5 3 3 5"></path><path d="m19 3 2 2"></path><path d="M12 2v3"></path></svg>
+        <span class="nav-label">记录</span>
+      </button>
+      <button class="nav-item" type="button" data-view="schedule">
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path><path d="M8 14h.01"></path><path d="M12 14h.01"></path><path d="M16 14h.01"></path><path d="M8 18h.01"></path><path d="M12 18h.01"></path></svg>
+        <span class="nav-label">课表</span>
+      </button>
+      <button class="nav-item" type="button" data-view="reports" data-nav-group="more">
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5Z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M16 13H8"></path><path d="M16 17H8"></path><path d="M10 9H8"></path></svg>
+        <span class="nav-label">更多</span>
+      </button>
+    </nav>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app-core.js?v=22"></script>
+  <script src="app-ui.js?v=22"></script>
+</body>
+</html>
