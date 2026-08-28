@@ -299,14 +299,17 @@ function renderHomeHabits() {
       .filter((s) => s.date === today && s.type === habit.id)
       .reduce((acc, s) => acc + s.durationSeconds, 0);
     const label = active ? "结束" : "开始";
+    const buttonIcon = active
+      ? `<svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"></rect></svg>`
+      : `<svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5Z"></path></svg>`;
     return `
-      <article class="home-habit-card ${running ? "running" : ""}">
+      <article class="home-habit-card habit-${habit.id} ${running ? "running" : ""}">
         <div class="home-habit-head">
           <h4>${habit.title}</h4>
           <span class="home-habit-clock" data-home-clock="${habit.id}">${elapsedSec ? formatClock(elapsedSec) : ""}</span>
         </div>
-        <div class="home-habit-meta">今天 ${formatDuration(todayTotal)}</div>
-        <button class="secondary-button home-habit-button" type="button" data-home-start="${habit.id}">${label}</button>
+        <div class="home-habit-meta"><span>今日</span><strong>${formatDuration(todayTotal)}</strong></div>
+        <button class="secondary-button home-habit-button" type="button" data-home-start="${habit.id}">${buttonIcon}<span>${label}</span></button>
       </article>`;
   }).join("");
   grid.querySelectorAll("[data-home-start]").forEach((button) => {
@@ -336,17 +339,23 @@ function renderHabitTimers() {
       .filter((s) => s.date === todayISO() && s.type === habit.id)
       .reduce((acc, s) => acc + s.durationSeconds, 0);
     const recent = state.stillnessSessions.find((s) => s.type === habit.id);
+    const buttonIcon = active
+      ? `<svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"></rect></svg>`
+      : `<svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5Z"></path></svg>`;
     return `
-      <article class="timer-card ${running ? "running" : ""}">
+      <article class="timer-card habit-${habit.id} ${running ? "running" : ""}">
         <div class="timer-row">
           <div>
             <h3>${habit.title}</h3>
-            <div class="timer-meta"><span>今天 ${formatDuration(todayTotal)}</span><span> · 最近 ${recent ? `${recent.date.slice(5)} ${formatDuration(recent.durationSeconds)}` : "暂无"}</span></div>
+            <div class="timer-meta">
+              <span><small>今日</small><strong>${formatDuration(todayTotal)}</strong></span>
+              <span><small>最近</small><strong>${recent ? `${recent.date.slice(5)} · ${formatDuration(recent.durationSeconds)}` : "暂无记录"}</strong></span>
+            </div>
           </div>
           <div class="timer-clock" data-clock="${habit.id}">${formatClock(elapsedSec)}</div>
         </div>
         <div class="timer-actions">
-          <button class="${active ? "timer-end-button" : "primary-button"} timer-toggle-button" type="button" data-timer-action="${habit.id}">${active ? "结束" : "开始"}</button>
+          <button class="${active ? "timer-end-button" : "primary-button"} timer-toggle-button" type="button" data-timer-action="${habit.id}">${buttonIcon}<span>${active ? "结束计时" : "开始计时"}</span></button>
         </div>
       </article>`;
   }).join("");
@@ -442,7 +451,10 @@ function toggleRunTimer() {
 
 function renderRunTimerButton() {
   const button = document.getElementById("runTimerButton");
-  button.textContent = runTimer.running ? "停止计时" : "开始计时";
+  const icon = runTimer.running
+    ? `<svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"></rect></svg>`
+    : `<svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5Z"></path></svg>`;
+  button.innerHTML = `${icon}<span>${runTimer.running ? "停止计时" : "开始计时"}</span>`;
   document.getElementById("runTimerDisplay").textContent = formatClock(runTimer.running
     ? runTimer.accSec + Math.floor((Date.now() - runTimer.startTs) / 1000)
     : runTimer.accSec);
@@ -473,7 +485,7 @@ function renderRuns() {
       <div class="list-item">
         <div class="item-title">${run.date} · ${run.distanceKm.toFixed(2)} 公里</div>
         <div class="item-meta">用时 ${formatRunDuration(run.durationSeconds)} · 配速 ${formatPace(run.paceSecondsPerKm)} · ${Math.round(run.calories)} 大卡${run.note ? ` · ${escapeHtml(run.note)}` : ""}</div>
-        <button class="delete-link" type="button" data-del-run="${escapeAttribute(run.id)}">删除</button>
+        <button class="delete-link" type="button" data-del-run="${escapeAttribute(run.id)}"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="m9 7 1-3h4l1 3"></path><path d="m6 7 1 14h10l1-14"></path></svg><span>删除</span></button>
       </div>
     `).join("")
     : `<div class="list-item"><div class="item-title">还没有跑步记录</div></div>`;
@@ -483,7 +495,10 @@ function renderRuns() {
 function renderSchedule() {
   ensureWeek(state, currentWeekStart);
   const isCurrentWeek = currentWeekStart === startOfWeek(todayISO());
-  document.getElementById("weekNavLabel").textContent = `${isCurrentWeek ? "本周 " : ""}${currentWeekStart} 至 ${addDays(currentWeekStart, 6)}`;
+  const weekEnd = addDays(currentWeekStart, 6);
+  const shortWeekStart = currentWeekStart.slice(5).replace("-", ".");
+  const shortWeekEnd = weekEnd.slice(5).replace("-", ".");
+  document.getElementById("weekNavLabel").textContent = `${isCurrentWeek ? "本周 · " : ""}${shortWeekStart}—${shortWeekEnd}`;
   const banner = document.getElementById("nowBanner");
   banner.hidden = !isCurrentWeek;
   if (isCurrentWeek) refreshBanner();
@@ -496,6 +511,12 @@ function renderSchedule() {
       renderHome();
     });
   });
+  const activeDayButton = tabs.querySelector(".day-tab.active");
+  if (activeDayButton) {
+    requestAnimationFrame(() => {
+      tabs.scrollLeft = activeDayButton.offsetLeft - (tabs.clientWidth - activeDayButton.offsetWidth) / 2;
+    });
+  }
   const slots = getWeek(state, currentWeekStart).slots
     .filter((slot) => slot.day === activeScheduleDay)
     .sort((a, b) => a.start.localeCompare(b.start) || a.id.localeCompare(b.id));
@@ -509,7 +530,7 @@ function renderSchedule() {
               <div class="schedule-slot-label">${slot.part} · ${slot.name}</div>
               <div class="schedule-slot-time" data-slot-time="${slot.id}">${slot.start}–${slot.end}</div>
             </div>
-            ${slot.part === "晚上" ? `<button class="delete-link" type="button" data-remove-evening="${slot.id}">删除</button>` : ""}
+            ${slot.part === "晚上" ? `<button class="delete-link" type="button" data-remove-evening="${slot.id}"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="m9 7 1-3h4l1 3"></path><path d="m6 7 1 14h10l1-14"></path></svg><span>删除</span></button>` : ""}
           </div>
           <div class="schedule-entry-row">
             <input class="schedule-title-input" type="text" value="${escapeAttribute(slot.title)}" placeholder="课名" data-slot-field="${slot.id}" data-field="title" enterkeyhint="next" aria-label="${slot.part}${slot.name}课名">
@@ -730,13 +751,13 @@ function renderManagerList() {
     const period = periodFor(range, baseDate);
     const sessions = stillnessSessionsIn(state, document.getElementById("reportHabit").value, period.start, period.end);
     sessions.forEach((s) => {
-      items.push(`<div class="manager-item"><span>${s.date} ${hhmmFromIso(s.startedAt || s.endedAt)} · ${habitTitle(s.type)} · ${formatDuration(s.durationSeconds)}</span><button class="delete-link" type="button" data-del-stillness="${escapeAttribute(s.id)}">删除</button></div>`);
+      items.push(`<div class="manager-item"><span>${s.date} ${hhmmFromIso(s.startedAt || s.endedAt)} · ${habitTitle(s.type)} · ${formatDuration(s.durationSeconds)}</span><button class="delete-link" type="button" data-del-stillness="${escapeAttribute(s.id)}"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="m9 7 1-3h4l1 3"></path><path d="m6 7 1 14h10l1-14"></path></svg><span>删除</span></button></div>`);
     });
   } else if (kind === "running") {
     const period = periodFor(range, baseDate);
     const runs = runningRecordsIn(state, period.start, period.end);
     runs.forEach((r) => {
-      items.push(`<div class="manager-item"><span>${r.date} · ${r.distanceKm.toFixed(2)} 公里 · ${formatRunDuration(r.durationSeconds)}</span><button class="delete-link" type="button" data-del-run="${escapeAttribute(r.id)}">删除</button></div>`);
+      items.push(`<div class="manager-item"><span>${r.date} · ${r.distanceKm.toFixed(2)} 公里 · ${formatRunDuration(r.durationSeconds)}</span><button class="delete-link" type="button" data-del-run="${escapeAttribute(r.id)}"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="m9 7 1-3h4l1 3"></path><path d="m6 7 1 14h10l1-14"></path></svg><span>删除</span></button></div>`);
     });
   } else if (kind === "schedule") {
     container.innerHTML = `<div class="manager-item"><span>课表的修改在「课表」页完成。</span></div>`;
@@ -780,6 +801,32 @@ function exportReportText() {
 function hydrateSettings() {
   document.getElementById("caloriesPerKm").value = state.settings.caloriesPerKm;
   document.getElementById("breakMinutes").value = state.settings.breakMinutes;
+  updateBackupSummary();
+}
+
+function updateBackupSummary(options = {}) {
+  const title = document.getElementById("backupSummaryTitle");
+  const meta = document.getElementById("backupSummaryMeta");
+  const badge = document.getElementById("backupState");
+  if (!title || !meta || !badge) return;
+
+  const stillnessCount = state.stillnessSessions.length;
+  const runCount = state.runningSessions.length;
+  const courseCount = Object.values(state.scheduleWeeks).reduce((sum, week) => {
+    const slots = week && Array.isArray(week.slots) ? week.slots : [];
+    return sum + slots.filter((slot) => slot.title && slot.title.trim()).length;
+  }, 0);
+
+  if (options.restored) {
+    title.textContent = `已恢复「${options.fileName || "备份文件"}」`;
+    badge.textContent = "恢复成功";
+    badge.classList.add("success");
+  } else {
+    title.textContent = "数据保存在当前浏览器";
+    badge.textContent = "本机存储";
+    badge.classList.remove("success");
+  }
+  meta.textContent = `静修 ${stillnessCount} 条 · 跑步 ${runCount} 条 · 已填写课程 ${courseCount} 项`;
 }
 
 function saveSettings(event) {
@@ -813,19 +860,42 @@ function exportBackup() {
 function restoreBackup(event) {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
+  const buttonLabel = document.getElementById("restoreButtonLabel");
+  const feedback = document.getElementById("restoreFeedback");
+  buttonLabel.textContent = "正在读取…";
+  feedback.hidden = true;
   const reader = new FileReader();
   reader.onload = () => {
     try {
       const restored = JSON.parse(reader.result);
+      if (!restored || typeof restored !== "object" || Array.isArray(restored)) {
+        throw new Error("备份根节点不是对象");
+      }
       Object.keys(state).forEach((key) => delete state[key]);
       Object.assign(state, normalizeState(restored));
       ensureWeek(state, currentWeekStart);
       saveState(state);
-      showToast("备份已恢复。");
       renderAll();
+      updateBackupSummary({ restored: true, fileName: file.name });
+      feedback.textContent = "恢复完成，页面数据已经重新载入。首页只显示今天的数据，历史记录可在“报告”中查看。";
+      feedback.className = "restore-feedback success";
+      feedback.hidden = false;
+      showToast("备份已恢复，数据已重新载入。");
     } catch {
-      showToast("备份文件有问题。");
+      feedback.textContent = "无法恢复：请选择由“小羊工作台”导出的 JSON 备份文件。";
+      feedback.className = "restore-feedback error";
+      feedback.hidden = false;
+      showToast("备份文件无法读取。");
+    } finally {
+      buttonLabel.textContent = "恢复备份";
     }
+  };
+  reader.onerror = () => {
+    buttonLabel.textContent = "恢复备份";
+    feedback.textContent = "文件读取失败，请重新选择。";
+    feedback.className = "restore-feedback error";
+    feedback.hidden = false;
+    showToast("文件读取失败。");
   };
   reader.readAsText(file);
   event.target.value = "";
@@ -842,6 +912,14 @@ function showToast(message) {
 
 function registerServiceWorker() {
   if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (refreshing) return;
+      refreshing = true;
+      location.reload();
+    });
+    navigator.serviceWorker.register("sw.js").then((registration) => {
+      registration.update();
+    }).catch(() => {});
   }
 }
