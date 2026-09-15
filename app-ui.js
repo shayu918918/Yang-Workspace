@@ -24,6 +24,20 @@ function init() {
   renderAll();
   setViewFromHash();
   startGlobalLoop();
+  bindResumeRefresh();
+}
+
+function bindResumeRefresh() {
+  const refreshElapsedTime = () => {
+    updateTimerClocks();
+    renderHomeHabits();
+    renderHabitTimers();
+  };
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) refreshElapsedTime();
+  });
+  window.addEventListener("pageshow", refreshElapsedTime);
+  window.addEventListener("focus", refreshElapsedTime);
 }
 
 /* ---------- 全局节拍：刷新计时表盘与慢任务 ---------- */
@@ -43,7 +57,7 @@ function startGlobalLoop() {
 }
 
 function updateTimerClocks() {
-  habitDefs.forEach((habit) => {
+  habitDefs.filter((habit) => habit.tracking === "timer").forEach((habit) => {
     const timer = getHabitTimer(state, habit.id);
     const el = document.querySelector(`[data-clock="${habit.id}"]`);
     if (el && timer) el.textContent = formatClock(Math.round(timerElapsedMs(timer) / 1000));
@@ -121,7 +135,7 @@ function bindForms() {
     document.getElementById(id).addEventListener("input", updateRunPreview);
   });
   document.getElementById("settingsForm").addEventListener("submit", saveSettings);
-  document.getElementById("applyBreakButton").addEventListener("click", applyBreakNow);
+  document.getElementById("refreshAppButton").addEventListener("click", refreshApplication);
   document.getElementById("backupButton").addEventListener("click", exportBackup);
   document.getElementById("restoreInput").addEventListener("change", restoreBackup);
   document.getElementById("runList").addEventListener("click", (event) => {
@@ -244,9 +258,10 @@ function renderAll() {
 function renderHome() {
   const today = todayISO();
   const stillnessSeconds = state.stillnessSessions
-    .filter((item) => item.date === today)
+    .filter((item) => item.date === today && item.type !== "baduanjin")
     .reduce((acc, item) => acc + item.durationSeconds, 0);
-  document.getElementById("homeStillnessMeta").textContent = `今天 ${Math.round(stillnessSeconds / 60)} 分钟`;
+  const baduanjinCount = countHabitRecords(state, "baduanjin", today, today);
+  document.getElementById("homeStillnessMeta").textContent = `今天 ${Math.round(stillnessSeconds / 60)} 分钟 · 八段锦 ${baduanjinCount} 次`;
   const runsToday = state.runningSessions.filter((item) => item.date === today);
   const runDistance = runsToday.reduce((acc, item) => acc + item.distanceKm, 0);
   document.getElementById("homeRunMeta").textContent = `今天 ${runDistance.toFixed(2)} 公里 · 累计 ${state.runningSessions.length} 次`;
@@ -291,6 +306,20 @@ function renderHomeHabits() {
   const grid = document.getElementById("homeHabitGrid");
   const today = todayISO();
   grid.innerHTML = habitDefs.map((habit) => {
+    if (habit.tracking === "count") {
+      const todayCount = countHabitRecords(state, habit.id, today, today);
+      return `
+        <article class="home-habit-card habit-${habit.id} count-habit-card">
+          <div class="home-habit-head">
+            <h4>${habit.title}</h4>
+            <span class="home-count-value">${todayCount}<small>次</small></span>
+          </div>
+          <div class="home-habit-meta"><span>今日</span><strong>${todayCount ? `已完成 ${todayCount} 次` : "尚未记录"}</strong></div>
+          <button class="secondary-button home-habit-button" type="button" data-home-count="${habit.id}">
+            <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg><span>记一次</span>
+          </button>
+        </article>`;
+    }
     const timer = getHabitTimer(state, habit.id);
     const running = !!(timer && timer.running);
     const active = !!timer;
@@ -298,7 +327,7 @@ function renderHomeHabits() {
     const todayTotal = state.stillnessSessions
       .filter((s) => s.date === today && s.type === habit.id)
       .reduce((acc, s) => acc + s.durationSeconds, 0);
-    const label = active ? "结束" : "开始";
+    const label = active ? "结束" : habit.id === "focus" ? "开始专注" : "开始";
     const buttonIcon = active
       ? `<svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"></rect></svg>`
       : `<svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 7 8 5-8 5Z"></path></svg>`;
@@ -315,6 +344,9 @@ function renderHomeHabits() {
   grid.querySelectorAll("[data-home-start]").forEach((button) => {
     button.addEventListener("click", () => homeTimerAction(button.dataset.homeStart));
   });
+  grid.querySelectorAll("[data-home-count]").forEach((button) => {
+    button.addEventListener("click", () => addCountHabit(button.dataset.homeCount));
+  });
 }
 
 function homeTimerAction(id) {
@@ -327,10 +359,34 @@ function homeTimerAction(id) {
   showToast(`${habitTitle(id)}开始计时。`);
 }
 
-/* ---------- 四习惯计时 ---------- */
+/* ---------- 静修计时与次数记录 ---------- */
 function renderHabitTimers() {
   const grid = document.getElementById("habitTimerGrid");
   grid.innerHTML = habitDefs.map((habit) => {
+    if (habit.tracking === "count") {
+      const today = todayISO();
+      const todayCount = countHabitRecords(state, habit.id, today, today);
+      const recent = state.stillnessSessions.find((s) => s.type === habit.id);
+      return `
+        <article class="timer-card habit-${habit.id} count-timer-card">
+          <div class="timer-row count-timer-row">
+            <div>
+              <h3>${habit.title}</h3>
+              <div class="timer-meta">
+                <span><small>记录方式</small><strong>每完成一遍记 1 次</strong></span>
+                <span><small>最近</small><strong>${recent ? `${recent.date.slice(5)} · 1 次` : "暂无记录"}</strong></span>
+              </div>
+            </div>
+            <div class="count-display"><strong>${todayCount}</strong><small>次</small></div>
+          </div>
+          <div class="count-actions">
+            <button class="secondary-button" type="button" data-count-undo="${habit.id}" ${todayCount ? "" : "disabled"}>撤销一次</button>
+            <button class="primary-button" type="button" data-count-add="${habit.id}">
+              <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg><span>记一次</span>
+            </button>
+          </div>
+        </article>`;
+    }
     const timer = getHabitTimer(state, habit.id);
     const elapsedSec = Math.round(timerElapsedMs(timer) / 1000);
     const running = !!(timer && timer.running);
@@ -355,13 +411,37 @@ function renderHabitTimers() {
           <div class="timer-clock" data-clock="${habit.id}">${formatClock(elapsedSec)}</div>
         </div>
         <div class="timer-actions">
-          <button class="${active ? "timer-end-button" : "primary-button"} timer-toggle-button" type="button" data-timer-action="${habit.id}">${buttonIcon}<span>${active ? "结束计时" : "开始计时"}</span></button>
+          <button class="${active ? "timer-end-button" : "primary-button"} timer-toggle-button" type="button" data-timer-action="${habit.id}">${buttonIcon}<span>${active ? "结束计时" : habit.id === "focus" ? "开始专注" : "开始计时"}</span></button>
         </div>
       </article>`;
   }).join("");
   grid.querySelectorAll("[data-timer-action]").forEach((button) => {
     button.addEventListener("click", () => homeTimerAction(button.dataset.timerAction));
   });
+  grid.querySelectorAll("[data-count-add]").forEach((button) => {
+    button.addEventListener("click", () => addCountHabit(button.dataset.countAdd));
+  });
+  grid.querySelectorAll("[data-count-undo]").forEach((button) => {
+    button.addEventListener("click", () => undoCountHabit(button.dataset.countUndo));
+  });
+}
+
+function addCountHabit(id) {
+  const session = recordCountHabit(state, id);
+  if (!session) return;
+  saveState(state);
+  showToast(`已记下${habitTitle(id)} 1 次。`);
+  renderAll();
+}
+
+function undoCountHabit(id) {
+  if (!removeLatestCountHabit(state, id)) {
+    showToast("今天还没有可撤销的记录。");
+    return;
+  }
+  saveState(state);
+  showToast(`已撤销今天最近一次${habitTitle(id)}记录。`);
+  renderAll();
 }
 
 function startTimer(id) {
@@ -536,14 +616,11 @@ function renderSchedule() {
             <input class="schedule-title-input" type="text" value="${escapeAttribute(slot.title)}" placeholder="课名" data-slot-field="${slot.id}" data-field="title" enterkeyhint="next" aria-label="${slot.part}${slot.name}课名">
             <button class="secondary-button schedule-done-button" type="button" data-toggle-slot="${slot.id}" ${slot.title.trim() ? "" : "disabled"}>${slot.done ? "取消" : "完成"}</button>
           </div>
-          <details class="schedule-time-editor">
-            <summary>调整时间</summary>
-            <div class="schedule-time-fields">
-              <input type="time" value="${slot.start}" data-slot-field="${slot.id}" data-field="start" aria-label="开始时间">
-              <span class="schedule-time-sep">-</span>
-              <input type="time" value="${slot.end}" data-slot-field="${slot.id}" data-field="end" aria-label="结束时间">
-            </div>
-          </details>
+          <div class="schedule-time-fields schedule-time-fields-direct" aria-label="手动输入课程时间段">
+            <label><span>开始</span><input class="schedule-time-input" type="text" inputmode="numeric" maxlength="5" value="${slot.start}" placeholder="08:30" data-slot-time-input="${slot.id}" data-field="start" aria-label="开始时间，格式为08:30"></label>
+            <span class="schedule-time-sep">—</span>
+            <label><span>结束</span><input class="schedule-time-input" type="text" inputmode="numeric" maxlength="5" value="${slot.end}" placeholder="09:30" data-slot-time-input="${slot.id}" data-field="end" aria-label="结束时间，格式为09:30"></label>
+          </div>
         </article>
       `).join("")}
       <button class="secondary-button table-add-button" type="button" data-add-evening>添加晚间时段</button>
@@ -552,6 +629,15 @@ function renderSchedule() {
   list.querySelectorAll("[data-slot-field]").forEach((input) => {
     input.addEventListener("change", updateSlotField);
     input.addEventListener("input", updateSlotField);
+  });
+  list.querySelectorAll("[data-slot-time-input]").forEach((input) => {
+    input.addEventListener("change", commitSlotTime);
+    input.addEventListener("blur", commitSlotTime);
+    input.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      event.target.blur();
+    });
   });
   const titleInputs = [...list.querySelectorAll('[data-field="title"]')];
   titleInputs.forEach((input, index) => {
@@ -602,6 +688,49 @@ function updateSlotField(event) {
   if (timeText) timeText.textContent = `${slot.start}–${slot.end}`;
   saveState(state);
   renderHome();
+}
+
+function normalizeManualTime(value) {
+  let raw = String(value || "").trim().replaceAll("：", ":");
+  if (/^\d{3,4}$/.test(raw)) raw = `${raw.slice(0, -2)}:${raw.slice(-2)}`;
+  const match = raw.match(/^(\d{1,2}):(\d{1,2})$/);
+  if (!match) return null;
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (hours > 23 || minutes > 59) return null;
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+}
+
+function commitSlotTime(event) {
+  const input = event.target;
+  const week = getWeek(state, currentWeekStart);
+  const slot = week.slots.find((item) => item.id === input.dataset.slotTimeInput);
+  if (!slot) return;
+  const field = input.dataset.field;
+  const normalized = normalizeManualTime(input.value);
+  if (!normalized) {
+    input.value = slot[field];
+    showToast("请输入 08:30 这样的时间。");
+    return;
+  }
+  const nextStart = field === "start" ? normalized : slot.start;
+  const nextEnd = field === "end" ? normalized : slot.end;
+  if (timeToMinutes(nextEnd) <= timeToMinutes(nextStart)) {
+    input.value = slot[field];
+    showToast("结束时间要晚于开始时间。");
+    return;
+  }
+  if (slot[field] === normalized) {
+    input.value = normalized;
+    return;
+  }
+  slot[field] = normalized;
+  input.value = normalized;
+  const timeText = document.querySelector(`[data-slot-time="${slot.id}"]`);
+  if (timeText) timeText.textContent = `${slot.start}–${slot.end}`;
+  saveState(state);
+  renderHome();
+  showToast(`时间已改为 ${slot.start}–${slot.end}。`);
 }
 
 function toggleSlotDone(id, weekStart) {
@@ -800,7 +929,6 @@ function exportReportText() {
 /* ---------- 设置 ---------- */
 function hydrateSettings() {
   document.getElementById("caloriesPerKm").value = state.settings.caloriesPerKm;
-  document.getElementById("breakMinutes").value = state.settings.breakMinutes;
   updateBackupSummary();
 }
 
@@ -832,18 +960,31 @@ function updateBackupSummary(options = {}) {
 function saveSettings(event) {
   event.preventDefault();
   state.settings.caloriesPerKm = Number(document.getElementById("caloriesPerKm").value) || 60;
-  state.settings.breakMinutes = Math.min(120, Math.max(5, Number(document.getElementById("breakMinutes").value) || 30));
   saveState(state);
   showToast("设置已保存。");
 }
 
-function applyBreakNow() {
-  const minutes = Math.min(120, Math.max(5, Number(document.getElementById("breakMinutes").value) || 30));
-  state.settings.breakMinutes = minutes;
-  applyBreakToWeek(state, currentWeekStart);
+async function refreshApplication() {
+  const button = document.getElementById("refreshAppButton");
+  button.disabled = true;
+  button.querySelector("span").textContent = "正在刷新…";
   saveState(state);
-  renderSchedule();
-  showToast(`已按课间 ${minutes} 分钟调整当前周上午、下午第2节课的时间。`);
+  try {
+    if ("caches" in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys
+        .filter((key) => key.startsWith("xiaoyang-workbench-"))
+        .map((key) => caches.delete(key)));
+    }
+    if ("serviceWorker" in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((registration) => registration.update().catch(() => null)));
+    }
+  } finally {
+    const url = new URL(location.href);
+    url.searchParams.set("refresh", Date.now().toString());
+    location.replace(url.toString());
+  }
 }
 
 /* ---------- 备份 ---------- */

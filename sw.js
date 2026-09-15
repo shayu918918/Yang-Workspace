@@ -1,11 +1,11 @@
-const CACHE_NAME = "xiaoyang-workbench-v36";
+const CACHE_NAME = "xiaoyang-workbench-v39";
 const APP_FILES = [
   "./",
   "./index.html",
-  "./styles.css?v=36",
-  "./theme-mobile.css?v=36",
-  "./app-core.js?v=36",
-  "./app-ui.js?v=36",
+  "./styles.css?v=39",
+  "./theme-mobile.css?v=39",
+  "./app-core.js?v=39",
+  "./app-ui.js?v=39",
   "./assets/header-hero-hd.png",
   "./assets/mountain-horizon.png",
   "./assets/garden-island.png",
@@ -15,6 +15,7 @@ const APP_FILES = [
   "./assets/stillness-lotus-ui.png",
   "./assets/running-trail-ui.png",
   "./assets/report-scroll-ui.png",
+  "./assets/focus-study-ui.webp",
   "./manifest.webmanifest"
 ];
 

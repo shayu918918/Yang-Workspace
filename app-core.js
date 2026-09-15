@@ -6,11 +6,17 @@
 const STORAGE_KEY = "xiaoyang-workbench-v1"; // 沿用旧键，数据无缝迁移
 
 const habitDefs = [
-  { id: "meditation", title: "冥想" },
-  { id: "standing", title: "站桩" },
-  { id: "reading", title: "读书" },
-  { id: "walking", title: "散步" }
+  { id: "meditation", title: "冥想", tracking: "timer" },
+  { id: "standing", title: "站桩", tracking: "timer" },
+  { id: "reading", title: "读书", tracking: "timer" },
+  { id: "walking", title: "散步", tracking: "timer" },
+  { id: "focus", title: "专注学习", tracking: "timer" },
+  { id: "baduanjin", title: "八段锦", tracking: "count" }
 ];
+
+function defaultHabitTimers() {
+  return Object.fromEntries(habitDefs.filter((habit) => habit.tracking === "timer").map((habit) => [habit.id, null]));
+}
 
 const weekNames = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
 // 课程表按周一至周日排列
@@ -39,7 +45,7 @@ function defaultState() {
     stillnessSessions: [],
     runningSessions: [],
     scheduleWeeks: {},
-    habitTimers: { meditation: null, standing: null, reading: null, walking: null },
+    habitTimers: defaultHabitTimers(),
     settings: {
       caloriesPerKm: 60,
       breakMinutes: 30
@@ -48,7 +54,7 @@ function defaultState() {
 }
 
 function normalizeStillnessSession(item) {
-  return {
+  const normalized = {
     id: item.id || uid("stillness"),
     type: item.type,
     date: item.date,
@@ -56,6 +62,8 @@ function normalizeStillnessSession(item) {
     endedAt: item.endedAt || item.startedAt,
     durationSeconds: Number(item.durationSeconds) || 0
   };
+  if (item.type === "baduanjin") normalized.count = Math.max(1, Number(item.count) || 1);
+  return normalized;
 }
 
 function normalizeRunRecord(item) {
@@ -82,7 +90,8 @@ function normalizeState(saved) {
   s.stillnessSessions = Array.isArray(s.stillnessSessions) ? s.stillnessSessions.map(normalizeStillnessSession) : [];
   s.runningSessions = Array.isArray(s.runningSessions) ? s.runningSessions.map(normalizeRunRecord) : [];
   s.scheduleWeeks = s.scheduleWeeks && typeof s.scheduleWeeks === "object" ? s.scheduleWeeks : {};
-  s.habitTimers = { meditation: null, standing: null, reading: null, walking: null, ...(s.habitTimers || {}) };
+  s.habitTimers = { ...defaultHabitTimers(), ...(s.habitTimers || {}) };
+  delete s.habitTimers.baduanjin;
   return s;
 }
 
@@ -242,6 +251,8 @@ function timerElapsedMs(timer) {
 }
 
 function startHabitTimer(stateValue, id) {
+  const habit = habitDefs.find((item) => item.id === id);
+  if (!habit || habit.tracking !== "timer") return;
   const t = stateValue.habitTimers[id];
   if (t && t.running) return;
   stateValue.habitTimers[id] = { running: true, accMs: t ? t.accMs : 0, startedAtTs: Date.now() };
@@ -273,6 +284,36 @@ function finishHabitTimer(stateValue, id) {
   };
   stateValue.stillnessSessions.unshift(session);
   return session;
+}
+
+function recordCountHabit(stateValue, id, date = todayISO()) {
+  const habit = habitDefs.find((item) => item.id === id);
+  if (!habit || habit.tracking !== "count") return null;
+  const now = new Date().toISOString();
+  const session = {
+    id: uid("stillness"),
+    type: id,
+    date,
+    startedAt: now,
+    endedAt: now,
+    durationSeconds: 0,
+    count: 1
+  };
+  stateValue.stillnessSessions.unshift(session);
+  return session;
+}
+
+function removeLatestCountHabit(stateValue, id, date = todayISO()) {
+  const index = stateValue.stillnessSessions.findIndex((item) => item.type === id && item.date === date);
+  if (index < 0) return false;
+  stateValue.stillnessSessions.splice(index, 1);
+  return true;
+}
+
+function countHabitRecords(stateValue, id, start, end) {
+  return stateValue.stillnessSessions
+    .filter((item) => item.type === id && (!start || !end || inRange(item.date, start, end)))
+    .reduce((total, item) => total + Math.max(1, Number(item.count) || 1), 0);
 }
 
 /* ---------- 课程表数据 ---------- */
@@ -446,8 +487,36 @@ function buildStillnessReport(stateValue, opts) {
   const baseDate = opts.baseDate || todayISO();
   const period = periodFor(range, baseDate);
   const previous = previousPeriod(period);
-  const sessions = stillnessSessionsIn(stateValue, habit, period.start, period.end);
-  const prevSessions = stillnessSessionsIn(stateValue, habit, previous.start, previous.end);
+  const selectedSessions = stillnessSessionsIn(stateValue, habit, period.start, period.end);
+  const previousSelected = stillnessSessionsIn(stateValue, habit, previous.start, previous.end);
+  const countSessions = selectedSessions.filter((session) => session.type === "baduanjin");
+  const previousCountSessions = previousSelected.filter((session) => session.type === "baduanjin");
+
+  if (habit === "baduanjin") {
+    const count = sum(countSessions.map((session) => Math.max(1, Number(session.count) || 1)));
+    const previousCount = sum(previousCountSessions.map((session) => Math.max(1, Number(session.count) || 1)));
+    const activeDays = new Set(countSessions.map((session) => session.date)).size;
+    const streak = maxStreak(countSessions.map((session) => session.date));
+    const lines = [
+      `【八段锦 · ${period.label}报告】`,
+      `统计区间：${periodText(period)}。`,
+      "",
+      count ? `共完成 ${count} 次，分布在 ${activeDays} 天${streak >= 2 ? `，最长连续 ${streak} 天` : ""}。` : "本周期暂无练习记录。",
+      "",
+      "明细（按时间顺序）："
+    ];
+    if (!countSessions.length) lines.push("- 暂无记录。");
+    else countSessions.forEach((session) => lines.push(`- ${session.date.slice(5)} ${hhmmFromIso(session.startedAt || session.endedAt)} · 1 次`));
+    lines.push("");
+    if (!count && !previousCount) lines.push("评价与建议：先从完整练习 1 次开始，完成后随手记下即可。");
+    else if (count && !previousCount) lines.push(`评价与建议：本周期已经完成 ${count} 次，先保持稳定频率，不必急着加量。`);
+    else if (!count && previousCount) lines.push(`评价与建议：上一周期完成 ${previousCount} 次，本周期尚未记录，可以先恢复 1 次。`);
+    else lines.push(`评价与建议：本周期比上一周期${count >= previousCount ? "多" : "少"} ${Math.abs(count - previousCount)} 次，继续以动作完整和呼吸稳定为先。`);
+    return lines.join("\n");
+  }
+
+  const sessions = selectedSessions.filter((session) => session.type !== "baduanjin");
+  const prevSessions = previousSelected.filter((session) => session.type !== "baduanjin");
   const durations = sessions.map((s) => s.durationSeconds);
   const prevDurations = prevSessions.map((s) => s.durationSeconds);
   const activeDays = new Set(sessions.map((s) => s.date)).size;
@@ -457,32 +526,42 @@ function buildStillnessReport(stateValue, opts) {
   lines.push(`【${title} · ${period.label}报告】`);
   lines.push(`统计区间：${periodText(period)}。`);
   lines.push("");
-  if (!sessions.length) {
+  if (!sessions.length && !countSessions.length) {
     lines.push("本周期暂无练习记录。");
-  } else {
+  }
+  if (sessions.length) {
     const streakText = streak >= 2 ? `，其中最长连续 ${streak} 天` : "";
     lines.push(`共练习 ${sessions.length} 次，总时长 ${formatDuration(sum(durations))}，平均每次 ${formatDuration(avg(durations))}，最长单次 ${formatDuration(max(durations))}，最短单次 ${formatDuration(min(durations))}；共在 ${activeDays} 天练习${streakText}。`);
   }
+  if (countSessions.length) lines.push(`八段锦另完成 ${sum(countSessions.map((session) => Math.max(1, Number(session.count) || 1)))} 次。`);
   lines.push("");
   lines.push("明细（按时间顺序）：");
-  if (!sessions.length) {
+  if (!selectedSessions.length) {
     lines.push("- 暂无记录。");
   } else {
-    sessions.forEach((s) => lines.push(`- ${s.date.slice(5)} ${hhmmFromIso(s.startedAt || s.endedAt)} · ${formatDuration(s.durationSeconds)}`));
+    selectedSessions.forEach((s) => {
+      const prefix = habit === "all" ? `${habitTitle(s.type)} · ` : "";
+      const measure = s.type === "baduanjin" ? "1 次" : formatDuration(s.durationSeconds);
+      lines.push(`- ${s.date.slice(5)} ${hhmmFromIso(s.startedAt || s.endedAt)} · ${prefix}${measure}`);
+    });
   }
   lines.push("");
-  lines.push(`评价与建议：${buildStillnessAdvice({
-    habitId: habit,
-    count: sessions.length,
-    total: sum(durations),
-    averageSec: avg(durations),
-    activeDays,
-    streak,
-    previousCount: prevSessions.length,
-    previousTotal: sum(prevDurations),
-    previousAverageSec: avg(prevDurations),
-    previousActiveDays: new Set(prevSessions.map((s) => s.date)).size
-  })}`);
+  if (!sessions.length && countSessions.length) {
+    lines.push(`评价与建议：本周期八段锦完成 ${countSessions.length} 次，继续保持随练随记即可。`);
+  } else {
+    lines.push(`评价与建议：${buildStillnessAdvice({
+      habitId: habit,
+      count: sessions.length,
+      total: sum(durations),
+      averageSec: avg(durations),
+      activeDays,
+      streak,
+      previousCount: prevSessions.length,
+      previousTotal: sum(prevDurations),
+      previousAverageSec: avg(prevDurations),
+      previousActiveDays: new Set(prevSessions.map((s) => s.date)).size
+    })}`);
+  }
   return lines.join("\n");
 }
 
@@ -522,7 +601,8 @@ function buildStillnessAdvice(o) {
       meditation: "冥想可以固定在每天同一个时段，形成身体记忆。",
       standing: "站桩重在姿势与呼吸的配合，时长稳中有升即可，不必快。",
       reading: "读书时先定一个容易开始的时段，读完留两三分钟整理要点，效果更好。",
-      walking: "散步贵在放松，不必追求速度与时长。"
+      walking: "散步贵在放松，不必追求速度与时长。",
+      focus: "专注学习可先以 25–50 分钟为一段，息屏后计时仍按真实经过时间累计。"
     };
     if (flavors[o.habitId]) parts.push(flavors[o.habitId]);
   }
@@ -682,7 +762,10 @@ function buildWeeklySummary(stateValue, baseDate) {
     const sessions = stillnessSessionsIn(stateValue, habit.id, weekStart, weekEnd);
     return {
       title: habit.title,
-      count: sessions.length,
+      tracking: habit.tracking,
+      count: habit.tracking === "count"
+        ? sum(sessions.map((session) => Math.max(1, Number(session.count) || 1)))
+        : sessions.length,
       seconds: sum(sessions.map((session) => session.durationSeconds))
     };
   });
@@ -700,7 +783,9 @@ function buildWeeklySummary(stateValue, baseDate) {
     `${weekStart} 至 ${weekEnd}`,
     "",
     `总记录时间：${formatDuration(totalSeconds)}`,
-    ...habitRows.map((row) => `- ${row.title}：${formatDuration(row.seconds)}（${row.count} 次）`),
+    ...habitRows.map((row) => row.tracking === "count"
+      ? `- ${row.title}：${row.count} 次`
+      : `- ${row.title}：${formatDuration(row.seconds)}（${row.count} 次）`),
     `- 跑步：${formatRunDuration(runSeconds)}（${runs.length} 次，共 ${runDistance.toFixed(2)} 公里）`,
     "",
     `完成课程：${doneSlots.length}/${namedSlots.length}`
@@ -721,6 +806,7 @@ if (typeof module !== "undefined" && module.exports) {
   module.exports = {
     STORAGE_KEY,
     habitDefs,
+    defaultHabitTimers,
     weekNames,
     editableDays,
     defaultState,
@@ -751,6 +837,9 @@ if (typeof module !== "undefined" && module.exports) {
     startHabitTimer,
     pauseHabitTimer,
     finishHabitTimer,
+    recordCountHabit,
+    removeLatestCountHabit,
+    countHabitRecords,
     fixedSlotTemplates,
     ensureWeek,
     getWeek,

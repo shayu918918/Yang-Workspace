@@ -11,8 +11,8 @@
   <meta name="format-detection" content="telephone=no">
   <title>小羊工作台</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css?v=36">
-  <link rel="stylesheet" href="theme-mobile.css?v=36">
+  <link rel="stylesheet" href="styles.css?v=39">
+  <link rel="stylesheet" href="theme-mobile.css?v=39">
 </head>
 <body>
   <div class="app-shell">
@@ -64,7 +64,7 @@
             <p class="page-eyebrow">专注计时</p>
             <h2 id="stillnessTitle">静修记录</h2>
           </div>
-          <span class="page-context"><i></i>四项练习</span>
+          <span class="page-context"><i></i>六项练习</span>
         </div>
         <div class="section-tabs" aria-label="记录类型">
           <button class="section-tab active" type="button" data-view="stillness">静修</button>
@@ -191,6 +191,8 @@
                 <option value="standing">站桩</option>
                 <option value="reading">读书</option>
                 <option value="walking">散步</option>
+                <option value="focus">专注学习</option>
+                <option value="baduanjin">八段锦</option>
               </select>
             </label>
             <label>参考日期<input id="reportDate" type="date"></label>
@@ -232,14 +234,32 @@
           <form id="settingsForm" class="stack-form">
             <div class="field-row">
               <label>每公里消耗（大卡）<input id="caloriesPerKm" type="number" min="20" max="160" step="1"></label>
-              <label>课间时长（分钟）<input id="breakMinutes" type="number" min="5" max="120" step="5"></label>
             </div>
-            <p class="form-note">热量默认按 1 公里 ≈ 60 大卡估算。课间时长决定上午、下午第2节课的开始时间，保存后点下方按钮应用到当前周。</p>
+            <p class="form-note">热量默认按 1 公里 ≈ 60 大卡估算。每节课程的开始、结束时间请直接在课表卡片中输入。</p>
             <div class="button-row">
               <button class="primary-button" type="submit">保存设置</button>
-              <button class="secondary-button" id="applyBreakButton" type="button">应用到当前周</button>
             </div>
           </form>
+        </section>
+
+        <section class="panel refresh-panel">
+          <div class="refresh-panel-head">
+            <div class="refresh-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M19.2 8.2A8 8 0 1 0 20 14"></path><path d="m16.5 4.8 3 3.4-4.3.8"></path></svg>
+            </div>
+            <div class="refresh-copy">
+              <p class="section-kicker">版本与缓存</p>
+              <h3>刷新应用</h3>
+              <p>看不到新界面时，清理本应用的离线缓存并重新载入。你的记录不会被删除。</p>
+            </div>
+          </div>
+          <div class="refresh-action-row">
+            <span class="version-chip">当前 v39</span>
+            <button class="secondary-button refresh-app-button" id="refreshAppButton" type="button">
+              <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.2 8.2A8 8 0 1 0 20 14"></path><path d="m16.5 4.8 3 3.4-4.3.8"></path></svg>
+              <span>清理缓存并刷新</span>
+            </button>
+          </div>
         </section>
 
         <section class="panel backup-panel">
@@ -290,7 +310,7 @@
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="app-core.js?v=36"></script>
-  <script src="app-ui.js?v=36"></script>
+  <script src="app-core.js?v=39"></script>
+  <script src="app-ui.js?v=39"></script>
 </body>
 </html>
