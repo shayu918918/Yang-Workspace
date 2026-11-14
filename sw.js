@@ -1,12 +1,12 @@
 const CACHE_PREFIX = "xiaoyang-workbench-";
-const CACHE_NAME = `${CACHE_PREFIX}v47`;
+const CACHE_NAME = `${CACHE_PREFIX}v49`;
 const APP_FILES = [
   "./",
   "./index.html",
-  "./styles.css?v=47",
-  "./theme-mobile.css?v=47",
-  "./app-core.js?v=47",
-  "./app-ui.js?v=47",
+  "./styles.css?v=49",
+  "./theme-mobile.css?v=49",
+  "./app-core.js?v=49",
+  "./app-ui.js?v=49",
   "./assets/hero-v47.webp",
   "./assets/meditation-v47.webp",
   "./assets/standing-v47.webp",
@@ -20,7 +20,7 @@ const APP_FILES = [
   "./assets/app-icon-v46-512.png",
   "./assets/apple-touch-icon-v46.png",
   "./assets/favicon-v46-32.png",
-  "./manifest.webmanifest?v=47"
+  "./manifest.webmanifest?v=49"
 ];
 
 async function matchAppCache(key) {
