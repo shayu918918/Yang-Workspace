@@ -1,0 +1,350 @@
+{
+  "version": 47,
+  "method": "Eight independently generated built-in image_gen illustrations, resized and WebP-encoded with sharp; v43 paper and v46 icons retained.",
+  "comparison": "File byte comparison with the nine illustrations/textures actually shipped in v46. Artwork changed, so this is not a same-image codec compression ratio.",
+  "sourceLogs": [
+    "tests/artifacts/art-v47-hero.json",
+    "tests/artifacts/art-v47-a.json",
+    "tests/artifacts/art-v47-b.json"
+  ],
+  "images": [
+    {
+      "name": "hero",
+      "source": "assets/sources-v47/hero.png",
+      "generatedSource": "C:\\Users\\Lecoo\\.codex\\generated_images\\01a0494f-ce3a-71e2-bf41-6601299f91d0\\exec-1bf23fdb-9f01-4f65-93df-ae171977f212.png",
+      "generationLog": "tests/artifacts/art-v47-hero.json",
+      "output": "assets/hero-v47.webp",
+      "quality": 68,
+      "sourceMetadata": {
+        "width": 2172,
+        "height": 724,
+        "bytes": 1958177,
+        "format": "png",
+        "alpha": false,
+        "sha256": "2700c34f8b841eb47ca12dd90cfaf3fdbc5cc712188913fbafdd83e5c025fa83"
+      },
+      "previousOutput": "assets/hero-v43.webp",
+      "before": {
+        "width": 1280,
+        "height": 462,
+        "bytes": 44214,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "16bc0251dbf6be9977c6779714b390f4ed6030602fb7849c82595e359aca7266"
+      },
+      "after": {
+        "width": 1440,
+        "height": 480,
+        "bytes": 7368,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "efe756226aa93aed7ff5c45974fb032dd47cc211ddf7e2c0e2cbbf0cd9bd55d9"
+      }
+    },
+    {
+      "name": "meditation",
+      "source": "assets/sources-v47/meditation.png",
+      "generatedSource": "C:\\Users\\Lecoo\\.codex\\generated_images\\01a1d87c-b26e-7af0-9ee3-60f7a372a122\\exec-8eb21ff1-e00f-49b0-ac25-dde9e22f7403.png",
+      "generationLog": "tests/artifacts/art-v47-a.json",
+      "output": "assets/meditation-v47.webp",
+      "quality": 68,
+      "sourceMetadata": {
+        "width": 1536,
+        "height": 1024,
+        "bytes": 2292226,
+        "format": "png",
+        "alpha": false,
+        "sha256": "3957d52988f2dcb75d491ea615f6a777a391a2909a2fb75f2267358e82f42fb3"
+      },
+      "previousOutput": "assets/meditation-v43.webp",
+      "before": {
+        "width": 768,
+        "height": 512,
+        "bytes": 21636,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "b0a803201c3aa97e7fc8868c3219f69b86fe12e2f0ce60bb480eaad060f39457"
+      },
+      "after": {
+        "width": 768,
+        "height": 512,
+        "bytes": 6132,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "3568fbef2a319951a9b4ed259c5534ac115f8c485f0533d193b57e48418bc572"
+      }
+    },
+    {
+      "name": "standing",
+      "source": "assets/sources-v47/standing.png",
+      "generatedSource": "C:\\Users\\Lecoo\\.codex\\generated_images\\01a1d87c-b26e-7af0-9ee3-60f7a372a122\\exec-0eb2e0be-e56c-4283-a846-e555d311b3c2.png",
+      "generationLog": "tests/artifacts/art-v47-a.json",
+      "output": "assets/standing-v47.webp",
+      "quality": 68,
+      "sourceMetadata": {
+        "width": 1536,
+        "height": 1024,
+        "bytes": 2240749,
+        "format": "png",
+        "alpha": false,
+        "sha256": "40da11270005ccada35917644c6eeac42049151d1fddeb35d5f52ffec1a9f533"
+      },
+      "previousOutput": "assets/standing-v43.webp",
+      "before": {
+        "width": 768,
+        "height": 512,
+        "bytes": 37528,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "4f2599313d720277bb69df428950693f32dac38ac4f6ce8503484c807b618043"
+      },
+      "after": {
+        "width": 768,
+        "height": 512,
+        "bytes": 6642,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "7115abaf738c640e703327368ddbb64d654de63ad3c4c240c2e88608eda4a570"
+      }
+    },
+    {
+      "name": "reading",
+      "source": "assets/sources-v47/reading.png",
+      "generatedSource": "C:\\Users\\Lecoo\\.codex\\generated_images\\01a1d72b-5f58-7642-9560-fe602bc1e30a\\exec-be14798b-4a2f-470a-a7d4-4b573147106c.png",
+      "generationLog": "tests/artifacts/art-v47-b.json",
+      "output": "assets/reading-v47.webp",
+      "quality": 70,
+      "sourceMetadata": {
+        "width": 1536,
+        "height": 1024,
+        "bytes": 2144410,
+        "format": "png",
+        "alpha": false,
+        "sha256": "c58d54bcf4d3d00a2228c9265441cd0f548d8839878e89b9d73105da4f11172a"
+      },
+      "previousOutput": "assets/reading-v43.webp",
+      "before": {
+        "width": 768,
+        "height": 512,
+        "bytes": 22984,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "96f96039132ba88956771d87b31fd739220b717136869b761d19696c622d362f"
+      },
+      "after": {
+        "width": 768,
+        "height": 512,
+        "bytes": 5380,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "889ccd22cb22abd890d15867f442ab572f58d9384560fd8b2676f5881df62549"
+      }
+    },
+    {
+      "name": "walking",
+      "source": "assets/sources-v47/walking.png",
+      "generatedSource": "C:\\Users\\Lecoo\\.codex\\generated_images\\01a1d72b-5f58-7642-9560-fe602bc1e30a\\exec-5bef3656-5509-404f-a8aa-ad2253bc8005.png",
+      "generationLog": "tests/artifacts/art-v47-b.json",
+      "output": "assets/walking-v47.webp",
+      "quality": 70,
+      "sourceMetadata": {
+        "width": 1536,
+        "height": 1024,
+        "bytes": 2174993,
+        "format": "png",
+        "alpha": false,
+        "sha256": "dba9f15c8d32d037c54c618f8ff921f704881b54002f5fa500c1d756f709c4c5"
+      },
+      "previousOutput": "assets/walking-v43.webp",
+      "before": {
+        "width": 768,
+        "height": 512,
+        "bytes": 62436,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "dbd253ff730cacf9b1326133605e6b7b30bca2af4205df71d2970e5a3c5ce40d"
+      },
+      "after": {
+        "width": 768,
+        "height": 512,
+        "bytes": 3934,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "59024d1173a718eb667aba8d7027e2b4f89a6953ffe5f7ed01fd75ab7d28e506"
+      }
+    },
+    {
+      "name": "focus",
+      "source": "assets/sources-v47/focus.png",
+      "generatedSource": "C:\\Users\\Lecoo\\.codex\\generated_images\\01a1d72b-5f58-7642-9560-fe602bc1e30a\\exec-abd1cbd3-357f-4c10-b8cf-c5f19d22f7b4.png",
+      "generationLog": "tests/artifacts/art-v47-b.json",
+      "output": "assets/focus-v47.webp",
+      "quality": 70,
+      "sourceMetadata": {
+        "width": 1536,
+        "height": 1024,
+        "bytes": 2142431,
+        "format": "png",
+        "alpha": false,
+        "sha256": "fcfe860706e2799406b26e9ebeaee8fe76641121361c84a342c972c37fa391bb"
+      },
+      "previousOutput": "assets/focus-v43.webp",
+      "before": {
+        "width": 768,
+        "height": 512,
+        "bytes": 23302,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "e6cf31f88beffcab821a1574170fd38212b71203bd4ad2d667c214b4dd22a8eb"
+      },
+      "after": {
+        "width": 768,
+        "height": 512,
+        "bytes": 4700,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "11f3ffd2f243215f46dbce57f24f43b209930030c61c44ea10b37ab14e690b1c"
+      }
+    },
+    {
+      "name": "baduanjin",
+      "source": "assets/sources-v47/baduanjin.png",
+      "generatedSource": "C:\\Users\\Lecoo\\.codex\\generated_images\\01a1d87c-b26e-7af0-9ee3-60f7a372a122\\exec-7d4da988-438e-4d73-8985-d2a4f722dc34.png",
+      "generationLog": "tests/artifacts/art-v47-a.json",
+      "output": "assets/baduanjin-v47.webp",
+      "quality": 68,
+      "sourceMetadata": {
+        "width": 1536,
+        "height": 1024,
+        "bytes": 2217620,
+        "format": "png",
+        "alpha": false,
+        "sha256": "c25c25fd6c5aa5a3542f24e6dae61114ffc5d672c4e50e306de7225d5c871094"
+      },
+      "previousOutput": "assets/baduanjin-v43.webp",
+      "before": {
+        "width": 768,
+        "height": 512,
+        "bytes": 49778,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "17b8a5c8d61fd0ce76a7ae16c08ed3a119fb6181ce774db7e42a1f2f1a6608da"
+      },
+      "after": {
+        "width": 768,
+        "height": 512,
+        "bytes": 7264,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "bcaaa7e996434ef30ae498439043f13080863701eacfad1c0e7d4de5279105cf"
+      }
+    },
+    {
+      "name": "running",
+      "source": "assets/sources-v47/running.png",
+      "generatedSource": "C:\\Users\\Lecoo\\.codex\\generated_images\\01a1d72b-5f58-7642-9560-fe602bc1e30a\\exec-24f58080-fc7c-48fd-8f0c-c87afba46126.png",
+      "generationLog": "tests/artifacts/art-v47-b.json",
+      "output": "assets/running-v47.webp",
+      "quality": 70,
+      "sourceMetadata": {
+        "width": 1536,
+        "height": 1024,
+        "bytes": 2283331,
+        "format": "png",
+        "alpha": false,
+        "sha256": "ecb929b404e1aae33f7eaecd4d00d38f060a94d1653af94a247d2a8b9ce0dbd8"
+      },
+      "previousOutput": "assets/running-v43.webp",
+      "before": {
+        "width": 768,
+        "height": 512,
+        "bytes": 35002,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "9a4f285530dd798e712d1317d1522d7047ca060e5f1ed91768cd9a1e963e795d"
+      },
+      "after": {
+        "width": 768,
+        "height": 512,
+        "bytes": 5178,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "08a66d60ebd3f0f3a0be9fea0e6c69f0ba20e8ecee1094012031b0b6cad38acc"
+      }
+    },
+    {
+      "name": "paper",
+      "source": "assets/xuan-paper-ui.png",
+      "output": "assets/paper-v43.webp",
+      "reused": true,
+      "quality": 48,
+      "previousOutput": "assets/paper-v43.webp",
+      "before": {
+        "width": 512,
+        "height": 512,
+        "bytes": 1402,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "7d13bfad648587a318e49d2193921a2f9ed254bef27f49324d6bccf86990ff90"
+      },
+      "after": {
+        "width": 512,
+        "height": 512,
+        "bytes": 1402,
+        "format": "webp",
+        "alpha": false,
+        "sha256": "7d13bfad648587a318e49d2193921a2f9ed254bef27f49324d6bccf86990ff90"
+      }
+    }
+  ],
+  "icons": [
+    {
+      "output": "assets/app-icon-v46-192.png",
+      "reused": true,
+      "width": 192,
+      "height": 192,
+      "bytes": 8954,
+      "format": "png",
+      "alpha": false,
+      "sha256": "44e208e11db2fd4413b95d2254cdd84089587a5f8e3382bedeb22e0584a665d1"
+    },
+    {
+      "output": "assets/app-icon-v46-512.png",
+      "reused": true,
+      "width": 512,
+      "height": 512,
+      "bytes": 56253,
+      "format": "png",
+      "alpha": false,
+      "sha256": "64ed7e2cd4049ca7178b72e5cbb77480fd4201a577d8dfa31bf3f4b55e6bf385"
+    },
+    {
+      "output": "assets/apple-touch-icon-v46.png",
+      "reused": true,
+      "width": 180,
+      "height": 180,
+      "bytes": 8224,
+      "format": "png",
+      "alpha": false,
+      "sha256": "2f121ee53395ec106726f98a1977f95dda5fccb9b43e4747c16d25cd2a576255"
+    },
+    {
+      "output": "assets/favicon-v46-32.png",
+      "reused": true,
+      "width": 32,
+      "height": 32,
+      "bytes": 592,
+      "format": "png",
+      "alpha": false,
+      "sha256": "66f412cc3a9d055c769b54941d107eb60a4db66d18cb764e8ba68119c83ef17e"
+    }
+  ],
+  "total": {
+    "beforeBytes": 298282,
+    "afterBytes": 48000,
+    "savedBytes": 250282,
+    "savedPercent": 83.91,
+    "iconBytes": 74023,
+    "allRuntimeImageBytes": 122023
+  }
+}

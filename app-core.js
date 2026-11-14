@@ -44,6 +44,7 @@ function defaultState() {
   return {
     stillnessSessions: [],
     runningSessions: [],
+    runDraft: null,
     scheduleWeeks: {},
     habitTimers: defaultHabitTimers(),
     settings: {
@@ -62,7 +63,10 @@ function normalizeStillnessSession(item) {
     endedAt: item.endedAt || item.startedAt,
     durationSeconds: Number(item.durationSeconds) || 0
   };
-  if (item.type === "baduanjin") normalized.count = Math.max(1, Number(item.count) || 1);
+  if (item.type === "baduanjin") {
+    normalized.count = countForSession(item);
+    normalized.durationSeconds = 0;
+  }
   return normalized;
 }
 
@@ -90,9 +94,57 @@ function normalizeState(saved) {
   s.stillnessSessions = Array.isArray(s.stillnessSessions) ? s.stillnessSessions.map(normalizeStillnessSession) : [];
   s.runningSessions = Array.isArray(s.runningSessions) ? s.runningSessions.map(normalizeRunRecord) : [];
   s.scheduleWeeks = s.scheduleWeeks && typeof s.scheduleWeeks === "object" ? s.scheduleWeeks : {};
+  s.scheduleWeeks = Object.fromEntries(Object.entries(s.scheduleWeeks).map(([key, week]) => {
+    if (!week || typeof week !== "object" || !Array.isArray(week.slots)) return [key, week];
+    const restored = { ...week, slots: week.slots.map((slot) => ({ ...slot })) };
+    normalizeWeekSchedule(restored);
+    return [key, restored];
+  }));
   s.habitTimers = { ...defaultHabitTimers(), ...(s.habitTimers || {}) };
   delete s.habitTimers.baduanjin;
+  s.runDraft = normalizeRunDraft(s.runDraft);
   return s;
+}
+
+function normalizeRunDraft(draft) {
+  if (!draft || typeof draft !== "object") return null;
+  const fields = {};
+  ["runDate", "runDistance", "runMinutes", "runSeconds", "runNote"].forEach((id) => {
+    fields[id] = typeof draft[id] === "string" ? draft[id] : "";
+  });
+  const timer = draft.timer || {};
+  const started = Number(timer.startTs);
+  return {
+    ...fields,
+    timer: {
+      running: timer.running === true && Number.isFinite(started) && started > 0,
+      startTs: Number.isFinite(started) && started > 0 ? started : 0,
+      accSec: Math.max(0, Number(timer.accSec) || 0)
+    }
+  };
+}
+
+function normalizeBackup(saved) {
+  const isObject = (value) => value && typeof value === "object" && !Array.isArray(value);
+  const isDate = (value) => typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(new Date(`${value}T00:00:00`).getTime());
+  if (!isObject(saved) || !Array.isArray(saved.stillnessSessions) || !Array.isArray(saved.runningSessions) || !isObject(saved.scheduleWeeks)) {
+    throw new Error("缺少工作台备份数据");
+  }
+  if (saved.stillnessSessions.some((session) => !isObject(session) || !isDate(session.date) || !habitDefs.some((habit) => habit.id === session.type))) {
+    throw new Error("静修记录格式不完整");
+  }
+  if (saved.runningSessions.some((session) => !isObject(session) || !isDate(session.date) || !(Number(session.distanceKm) > 0))) {
+    throw new Error("跑步记录格式不完整");
+  }
+  Object.entries(saved.scheduleWeeks).forEach(([date, week]) => {
+    if (!isDate(date) || !isObject(week) || !Array.isArray(week.slots) || week.slots.some((slot) =>
+      !isObject(slot) || typeof slot.id !== "string" || !editableDays.includes(slot.day) ||
+      typeof slot.title !== "string" || typeof slot.part !== "string" || typeof slot.name !== "string" ||
+      !normalizeManualTime(slot.start) || !normalizeManualTime(slot.end))) {
+      throw new Error("课程表格式不完整");
+    }
+  });
+  return normalizeState(saved);
 }
 
 function loadState() {
@@ -183,6 +235,25 @@ function hhmmFromIso(iso) {
 function timeToMinutes(time) {
   const parts = String(time || "00:00").split(":").map(Number);
   return (parts[0] || 0) * 60 + (parts[1] || 0);
+}
+
+function normalizeManualTime(value) {
+  let raw = String(value || "").trim().replaceAll("：", ":");
+  if (/^\d{3,4}$/.test(raw)) raw = `${raw.slice(0, -2)}:${raw.slice(-2)}`;
+  const match = raw.match(/^(\d{1,2}):(\d{1,2})$/);
+  if (!match) return null;
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  if (hours > 23 || minutes > 59) return null;
+  return `${pad(hours)}:${pad(minutes)}`;
+}
+
+function validateSlotTimeRange(startValue, endValue) {
+  const start = normalizeManualTime(startValue);
+  const end = normalizeManualTime(endValue);
+  if (!start || !end) return { error: "请输入 08:30 或 0830 这样的时间。" };
+  if (timeToMinutes(end) <= timeToMinutes(start)) return { error: "结束时间要晚于开始时间。" };
+  return { start, end };
 }
 
 function addMinutesToTime(time, minutes) {
@@ -306,101 +377,210 @@ function recordCountHabit(stateValue, id, date = todayISO()) {
 function removeLatestCountHabit(stateValue, id, date = todayISO()) {
   const index = stateValue.stillnessSessions.findIndex((item) => item.type === id && item.date === date);
   if (index < 0) return false;
-  stateValue.stillnessSessions.splice(index, 1);
+  const count = countForSession(stateValue.stillnessSessions[index]);
+  if (count > 1) stateValue.stillnessSessions[index].count = count - 1;
+  else stateValue.stillnessSessions.splice(index, 1);
   return true;
+}
+
+function countForSession(session) {
+  const count = Number(session.count);
+  return Number.isFinite(count) && count >= 1 ? Math.floor(count) : 1;
+}
+
+function sessionMeasure(session) {
+  return session.type === "baduanjin" ? `${countForSession(session)} 次` : formatDuration(session.durationSeconds);
 }
 
 function countHabitRecords(stateValue, id, start, end) {
   return stateValue.stillnessSessions
     .filter((item) => item.type === id && (!start || !end || inRange(item.date, start, end)))
-    .reduce((total, item) => total + Math.max(1, Number(item.count) || 1), 0);
+    .reduce((total, item) => total + countForSession(item), 0);
 }
 
 /* ---------- 课程表数据 ---------- */
+function schedulePartForTime(time) {
+  const normalized = normalizeManualTime(time);
+  if (!normalized) return null;
+  const minutes = timeToMinutes(normalized);
+  return minutes < 12 * 60 ? "上午" : minutes < 18 * 60 ? "下午" : "晚上";
+}
+
+function compareScheduleSlots(a, b) {
+  const minutes = (value) => {
+    const normalized = normalizeManualTime(value);
+    return normalized ? timeToMinutes(normalized) : Number.MAX_SAFE_INTEGER;
+  };
+  return minutes(a.start) - minutes(b.start)
+    || minutes(a.end) - minutes(b.end)
+    || String(a.id || "").localeCompare(String(b.id || ""));
+}
+
+function migrateScheduleSlot(slot) {
+  // 先依据旧标记记录来源，再重算时段；移到上午的自定义课程仍可删除。
+  if (typeof slot.custom !== "boolean") {
+    slot.custom = slot.part === "晚上" || slot.name === "晚间" || /(?:^|[-_])evening(?:[-_]|$)/i.test(String(slot.id || ""));
+  }
+  if (!slot.custom && !slot.templateKey) {
+    const legacyKeys = { "上午第1节": "morning-1", "上午第2节": "morning-2", "下午第1节": "afternoon-1", "下午第2节": "afternoon-2" };
+    const key = legacyKeys[`${slot.part}${slot.name}`];
+    if (key) slot.templateKey = key;
+  }
+}
+
+function normalizeDaySchedule(week, day) {
+  if (!week || !Array.isArray(week.slots)) return [];
+  const daySlots = week.slots.filter((slot) => slot && slot.day === day);
+  let changed = false;
+  let nextCustomOrder = Math.max(0, ...daySlots.map((slot) => Number.isInteger(slot.customOrder) && slot.customOrder > 0 ? slot.customOrder : 0));
+  const knownOrders = new Set();
+  daySlots.forEach((slot) => {
+    migrateScheduleSlot(slot);
+    if (slot.custom) {
+      if (!Number.isInteger(slot.customOrder) || slot.customOrder < 1 || knownOrders.has(slot.customOrder)) slot.customOrder = ++nextCustomOrder;
+      knownOrders.add(slot.customOrder);
+    }
+    const start = normalizeManualTime(slot.start);
+    const end = normalizeManualTime(slot.end);
+    if (start && slot.start !== start) { slot.start = start; changed = true; }
+    if (end && slot.end !== end) { slot.end = end; changed = true; }
+  });
+  daySlots.sort(compareScheduleSlots);
+  const counters = {};
+  daySlots.forEach((slot) => {
+    const part = schedulePartForTime(slot.start);
+    if (!part) return; // 历史值无法解释时保留原记录，不丢弃课程。
+    counters[part] = (counters[part] || 0) + 1;
+    const name = `第${counters[part]}节`;
+    if (slot.part !== part || slot.name !== name) changed = true;
+    slot.part = part;
+    slot.name = name;
+  });
+  week.slots.sort((a, b) => editableDays.indexOf(a.day) - editableDays.indexOf(b.day) || compareScheduleSlots(a, b));
+  if (changed) week.report = null;
+  return daySlots;
+}
+
+function normalizeWeekSchedule(week) {
+  if (!week || !Array.isArray(week.slots)) return week;
+  [...new Set(week.slots.filter(Boolean).map((slot) => slot.day))].forEach((day) => normalizeDaySchedule(week, day));
+  return week;
+}
+
 function fixedSlotTemplates(breakMinutes) {
   const b = Math.min(120, Math.max(5, Number(breakMinutes) || 30));
-  const am1 = { part: "上午", name: "第1节", start: "08:30", end: "09:30" };
+  const am1 = { templateKey: "morning-1", part: "上午", name: "第1节", start: "08:30", end: "09:30" };
   const am2Start = addMinutesToTime(am1.end, b);
-  const pm1 = { part: "下午", name: "第1节", start: "15:00", end: "15:45" };
+  const pm1 = { templateKey: "afternoon-1", part: "下午", name: "第1节", start: "15:00", end: "15:45" };
   const pm2Start = addMinutesToTime(pm1.end, b);
   return [
     am1,
-    { part: "上午", name: "第2节", start: am2Start, end: addMinutesToTime(am2Start, 60) },
+    { templateKey: "morning-2", part: "上午", name: "第2节", start: am2Start, end: addMinutesToTime(am2Start, 60) },
     pm1,
-    { part: "下午", name: "第2节", start: pm2Start, end: addMinutesToTime(pm2Start, 45) }
+    { templateKey: "afternoon-2", part: "下午", name: "第2节", start: pm2Start, end: addMinutesToTime(pm2Start, 45) }
   ];
 }
 
 function ensureWeek(stateValue, weekStart) {
-  if (stateValue.scheduleWeeks[weekStart]) return stateValue.scheduleWeeks[weekStart];
+  if (stateValue.scheduleWeeks[weekStart]) return normalizeWeekSchedule(stateValue.scheduleWeeks[weekStart]);
   const slots = [];
   editableDays.forEach((day) => {
     fixedSlotTemplates(stateValue.settings.breakMinutes).forEach((tpl) => {
-      slots.push({ id: uid("slot"), day, part: tpl.part, name: tpl.name, start: tpl.start, end: tpl.end, title: "", done: false });
+      slots.push({ id: uid("slot"), day, ...tpl, custom: false, title: "", done: false });
     });
     // 晚间默认一个打卡条目，可增删
-    slots.push({ id: uid("slot"), day, part: "晚上", name: "晚间", start: "21:00", end: "22:30", title: "", done: false });
+    slots.push({ id: uid("slot"), day, part: "晚上", name: "晚间", custom: true, start: "21:00", end: "22:30", title: "", done: false });
   });
   const week = { weekStart, slots, report: null };
   stateValue.scheduleWeeks[weekStart] = week;
-  return week;
+  return normalizeWeekSchedule(week);
 }
 
 function getWeek(stateValue, weekStart) {
   return ensureWeek(stateValue, weekStart);
 }
 
-function addEveningSlot(stateValue, weekStart, day) {
+function addScheduleSlot(stateValue, weekStart, day) {
   const week = getWeek(stateValue, weekStart);
-  week.slots.push({ id: uid("slot"), day, part: "晚上", name: "晚间", start: "21:00", end: "22:30", title: "", done: false });
+  const endTimes = week.slots.filter((slot) => slot.day === day && normalizeManualTime(slot.end)).map((slot) => timeToMinutes(normalizeManualTime(slot.end)));
+  const lastEnd = endTimes.length ? Math.max(...endTimes) : 9 * 60;
+  const startMinutes = lastEnd + 60 < 24 * 60 ? lastEnd : 9 * 60;
+  const start = `${pad(Math.floor(startMinutes / 60))}:${pad(startMinutes % 60)}`;
+  const slot = { id: uid("slot"), day, custom: true, start, end: addMinutesToTime(start, 60), title: "", done: false };
+  week.slots.push(slot);
+  week.report = null;
+  normalizeDaySchedule(week, day);
+  return slot;
 }
 
-function removeEveningSlot(stateValue, weekStart, slotId) {
+function removeScheduleSlot(stateValue, weekStart, slotId) {
   const week = getWeek(stateValue, weekStart);
   const slot = week.slots.find((s) => s.id === slotId);
-  if (!slot || slot.part !== "晚上") return false;
+  if (!slot || !slot.custom) return false;
   week.slots = week.slots.filter((s) => s.id !== slotId);
+  week.report = null;
+  normalizeDaySchedule(week, slot.day);
   return true;
 }
+
+// 保留旧调用名与备份兼容；权限由 custom 决定，不再由展示时段决定。
+function addEveningSlot(stateValue, weekStart, day) { return addScheduleSlot(stateValue, weekStart, day); }
+function removeEveningSlot(stateValue, weekStart, slotId) { return removeScheduleSlot(stateValue, weekStart, slotId); }
 
 // 按设置的课间时长重排本周第2节（上午/下午）的起止时间
 function applyBreakToWeek(stateValue, weekStart) {
   const week = getWeek(stateValue, weekStart);
+  week.report = null;
   const tpl = fixedSlotTemplates(stateValue.settings.breakMinutes);
   editableDays.forEach((day) => {
-    const am2 = week.slots.find((s) => s.day === day && s.part === "上午" && s.name === "第2节");
-    const pm2 = week.slots.find((s) => s.day === day && s.part === "下午" && s.name === "第2节");
+    const am2 = week.slots.find((s) => s.day === day && s.templateKey === "morning-2" && !s.custom);
+    const pm2 = week.slots.find((s) => s.day === day && s.templateKey === "afternoon-2" && !s.custom);
     if (am2) { am2.start = tpl[1].start; am2.end = tpl[1].end; }
     if (pm2) { pm2.start = tpl[3].start; pm2.end = tpl[3].end; }
+    normalizeDaySchedule(week, day);
   });
 }
 
-// 复制上周课名与时间（晚间条目按顺序对齐），打卡状态一律复位
+// 固定条目按稳定来源对齐，自定义按复制关联/顺序对齐；目标多出课程保留。
 function copyWeekTitles(stateValue, weekStart) {
   const source = stateValue.scheduleWeeks[addDays(weekStart, -7)];
   const week = getWeek(stateValue, weekStart);
   if (!source) return false;
-  week.slots.forEach((slot) => {
-    let prev;
-    if (slot.part === "晚上") {
-      const srcEvenings = source.slots.filter((s) => s.day === slot.day && s.part === "晚上");
-      const tgtEvenings = week.slots.filter((s) => s.day === slot.day && s.part === "晚上");
-      prev = srcEvenings[tgtEvenings.indexOf(slot)];
-    } else {
-      prev = source.slots.find((s) => s.day === slot.day && s.part === slot.part && s.name === slot.name);
-    }
-    if (prev) {
-      slot.title = prev.title;
-      slot.start = prev.start;
-      slot.end = prev.end;
-      slot.done = false;
-    }
+  normalizeWeekSchedule(source);
+  week.report = null;
+  editableDays.forEach((day) => {
+    const sourceSlots = source.slots.filter((slot) => slot.day === day).sort(compareScheduleSlots);
+    const targets = week.slots.filter((slot) => slot.day === day).sort(compareScheduleSlots);
+    const used = new Set();
+    sourceSlots.forEach((previous) => {
+      let target = targets.find((slot) => !used.has(slot) && slot.custom === previous.custom && slot.copySourceId === previous.id);
+      if (!target && !previous.custom && previous.templateKey) {
+        target = targets.find((slot) => !used.has(slot) && !slot.custom && slot.templateKey === previous.templateKey);
+      }
+      if (!target && previous.custom) {
+        // 使用稳定创建顺序，而非当前时间顺序；目标额外的早课不会被抢占。
+        target = targets.find((slot) => !used.has(slot) && slot.custom && slot.customOrder === previous.customOrder);
+      }
+      if (!target && !previous.custom && !previous.templateKey) {
+        target = targets.find((slot) => !used.has(slot) && !slot.custom && !slot.templateKey);
+      }
+      if (target) {
+        const id = target.id;
+        Object.assign(target, previous, { id, done: false, copySourceId: previous.id });
+        used.add(target);
+      } else {
+        week.slots.push({ ...previous, id: uid("slot"), done: false, copySourceId: previous.id });
+      }
+    });
+    normalizeDaySchedule(week, day);
   });
   return true;
 }
 
 function clearWeekTitles(stateValue, weekStart) {
-  getWeek(stateValue, weekStart).slots.forEach((slot) => {
+  const week = getWeek(stateValue, weekStart);
+  week.report = null;
+  week.slots.forEach((slot) => {
     slot.title = "";
     slot.done = false;
   });
@@ -472,7 +652,7 @@ function maxStreak(dateList) {
 function stillnessSessionsIn(stateValue, habit, start, end) {
   return stateValue.stillnessSessions
     .filter((s) => (habit === "all" || s.type === habit) && inRange(s.date, start, end))
-    .sort((a, b) => (a.startedAt || a.endedAt).localeCompare(b.startedAt || b.endedAt));
+    .sort((a, b) => String(a.startedAt || a.endedAt || a.date).localeCompare(String(b.startedAt || b.endedAt || b.date)));
 }
 
 function runningRecordsIn(stateValue, start, end) {
@@ -493,8 +673,8 @@ function buildStillnessReport(stateValue, opts) {
   const previousCountSessions = previousSelected.filter((session) => session.type === "baduanjin");
 
   if (habit === "baduanjin") {
-    const count = sum(countSessions.map((session) => Math.max(1, Number(session.count) || 1)));
-    const previousCount = sum(previousCountSessions.map((session) => Math.max(1, Number(session.count) || 1)));
+    const count = sum(countSessions.map(countForSession));
+    const previousCount = sum(previousCountSessions.map(countForSession));
     const activeDays = new Set(countSessions.map((session) => session.date)).size;
     const streak = maxStreak(countSessions.map((session) => session.date));
     const lines = [
@@ -506,7 +686,7 @@ function buildStillnessReport(stateValue, opts) {
       "明细（按时间顺序）："
     ];
     if (!countSessions.length) lines.push("- 暂无记录。");
-    else countSessions.forEach((session) => lines.push(`- ${session.date.slice(5)} ${hhmmFromIso(session.startedAt || session.endedAt)} · 1 次`));
+    else countSessions.forEach((session) => lines.push(`- ${session.date.slice(5)} ${hhmmFromIso(session.startedAt || session.endedAt)} · ${sessionMeasure(session)}`));
     lines.push("");
     if (!count && !previousCount) lines.push("评价与建议：先从完整练习 1 次开始，完成后随手记下即可。");
     else if (count && !previousCount) lines.push(`评价与建议：本周期已经完成 ${count} 次，先保持稳定频率，不必急着加量。`);
@@ -533,7 +713,7 @@ function buildStillnessReport(stateValue, opts) {
     const streakText = streak >= 2 ? `，其中最长连续 ${streak} 天` : "";
     lines.push(`共练习 ${sessions.length} 次，总时长 ${formatDuration(sum(durations))}，平均每次 ${formatDuration(avg(durations))}，最长单次 ${formatDuration(max(durations))}，最短单次 ${formatDuration(min(durations))}；共在 ${activeDays} 天练习${streakText}。`);
   }
-  if (countSessions.length) lines.push(`八段锦另完成 ${sum(countSessions.map((session) => Math.max(1, Number(session.count) || 1)))} 次。`);
+  if (countSessions.length) lines.push(`八段锦另完成 ${sum(countSessions.map(countForSession))} 次。`);
   lines.push("");
   lines.push("明细（按时间顺序）：");
   if (!selectedSessions.length) {
@@ -541,13 +721,13 @@ function buildStillnessReport(stateValue, opts) {
   } else {
     selectedSessions.forEach((s) => {
       const prefix = habit === "all" ? `${habitTitle(s.type)} · ` : "";
-      const measure = s.type === "baduanjin" ? "1 次" : formatDuration(s.durationSeconds);
+      const measure = sessionMeasure(s);
       lines.push(`- ${s.date.slice(5)} ${hhmmFromIso(s.startedAt || s.endedAt)} · ${prefix}${measure}`);
     });
   }
   lines.push("");
   if (!sessions.length && countSessions.length) {
-    lines.push(`评价与建议：本周期八段锦完成 ${countSessions.length} 次，继续保持随练随记即可。`);
+    lines.push(`评价与建议：本周期八段锦完成 ${sum(countSessions.map(countForSession))} 次，继续保持随练随记即可。`);
   } else {
     lines.push(`评价与建议：${buildStillnessAdvice({
       habitId: habit,
@@ -720,7 +900,7 @@ function buildScheduleReport(stateValue, weekStart) {
   const byDay = editableDays.map((day, index) => {
     const daySlots = named
       .filter((slot) => slot.day === day)
-      .sort((a, b) => a.start.localeCompare(b.start) || a.id.localeCompare(b.id));
+      .sort(compareScheduleSlots);
     const dayDate = addDays(weekStart, index);
     if (!daySlots.length) return `${weekNames[day]}（${dayDate.slice(5)}）：无打卡课程。`;
     const dayDone = daySlots.filter((slot) => slot.done);
@@ -764,7 +944,7 @@ function buildWeeklySummary(stateValue, baseDate) {
       title: habit.title,
       tracking: habit.tracking,
       count: habit.tracking === "count"
-        ? sum(sessions.map((session) => Math.max(1, Number(session.count) || 1)))
+        ? sum(sessions.map(countForSession))
         : sessions.length,
       seconds: sum(sessions.map((session) => session.durationSeconds))
     };
@@ -776,7 +956,7 @@ function buildWeeklySummary(stateValue, baseDate) {
   const namedSlots = week.slots.filter((slot) => slot.title.trim());
   const doneSlots = namedSlots
     .filter((slot) => slot.done)
-    .sort((a, b) => editableDays.indexOf(a.day) - editableDays.indexOf(b.day) || a.start.localeCompare(b.start));
+    .sort((a, b) => editableDays.indexOf(a.day) - editableDays.indexOf(b.day) || compareScheduleSlots(a, b));
   const totalSeconds = sum(habitRows.map((row) => row.seconds)) + runSeconds;
   const lines = [
     "【每周总结】",
@@ -811,6 +991,8 @@ if (typeof module !== "undefined" && module.exports) {
     editableDays,
     defaultState,
     normalizeState,
+    normalizeRunDraft,
+    normalizeBackup,
     loadState,
     saveState,
     uid,
@@ -826,6 +1008,8 @@ if (typeof module !== "undefined" && module.exports) {
     formatLongDate,
     hhmmFromIso,
     timeToMinutes,
+    normalizeManualTime,
+    validateSlotTimeRange,
     addMinutesToTime,
     nowHHMM,
     periodFor,
@@ -840,9 +1024,17 @@ if (typeof module !== "undefined" && module.exports) {
     recordCountHabit,
     removeLatestCountHabit,
     countHabitRecords,
+    countForSession,
+    sessionMeasure,
     fixedSlotTemplates,
+    schedulePartForTime,
+    compareScheduleSlots,
+    normalizeDaySchedule,
+    normalizeWeekSchedule,
     ensureWeek,
     getWeek,
+    addScheduleSlot,
+    removeScheduleSlot,
     addEveningSlot,
     removeEveningSlot,
     applyBreakToWeek,

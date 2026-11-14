@@ -3,20 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#e8ede8">
+  <meta name="theme-color" content="#f7f3e7">
   <meta name="application-name" content="小羊工作台">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="小羊工作台">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="format-detection" content="telephone=no">
   <title>小羊工作台</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css?v=39">
-  <link rel="stylesheet" href="theme-mobile.css?v=39">
+  <link rel="manifest" href="manifest.webmanifest?v=47">
+  <link rel="icon" href="assets/favicon-v46-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon-v46.png" sizes="180x180">
+  <meta name="workbench-asset" content="assets/app-icon-v46-192.png">
+  <meta name="workbench-asset" content="assets/app-icon-v46-512.png">
+  <meta name="workbench-asset" content="assets/meditation-v47.webp">
+  <meta name="workbench-asset" content="assets/standing-v47.webp">
+  <meta name="workbench-asset" content="assets/reading-v47.webp">
+  <meta name="workbench-asset" content="assets/walking-v47.webp">
+  <meta name="workbench-asset" content="assets/focus-v47.webp">
+  <meta name="workbench-asset" content="assets/baduanjin-v47.webp">
+  <link rel="stylesheet" href="styles.css?v=47">
+  <link rel="stylesheet" href="theme-mobile.css?v=47">
 </head>
 <body>
+  <a class="skip-link" href="#mainContent">跳到内容</a>
   <div class="app-shell">
-    <main>
+    <main id="mainContent" tabindex="-1">
       <section class="view active" id="view-home">
         <header class="topbar">
           <div class="brand-copy">
@@ -24,29 +35,30 @@
             <h1>小羊工作台</h1>
             <p class="brand-note">一日一进，徐徐有得</p>
           </div>
-          <span class="today-status" aria-label="今日状态"><i></i>今日</span>
         </header>
         <div class="banner" id="homeBanner" hidden></div>
 
         <section class="panel home-primary-panel">
           <div class="section-head">
-            <h3>静修</h3>
+            <h3>今日静修</h3>
             <span id="homeStillnessMeta">今天 0 分钟</span>
           </div>
           <div class="home-habit-grid" id="homeHabitGrid"></div>
         </section>
 
+        <div class="home-side-panels">
         <section class="panel home-schedule-panel">
           <div class="section-head">
-            <h3>今天的课程</h3>
+            <div><p class="section-kicker">有序安排</p><h3>今天的课程</h3></div>
             <span id="todayScheduleMeta">今天没有课</span>
           </div>
           <div class="compact-list" id="homeScheduleList"></div>
         </section>
 
         <section class="panel run-summary-panel">
+          <div class="run-card-art" aria-hidden="true"></div>
           <div class="section-head">
-            <h3>跑步</h3>
+            <div><p class="section-kicker">向前一步</p><h3>跑步</h3></div>
             <div class="head-actions">
               <span id="homeRunMeta">今天 0.00 公里</span>
               <button class="secondary-button compact-action" type="button" data-jump="running">
@@ -56,6 +68,7 @@
             </div>
           </div>
         </section>
+        </div>
       </section>
 
       <section class="view" id="view-stillness" aria-labelledby="stillnessTitle">
@@ -86,12 +99,14 @@
           <button class="section-tab active" type="button" data-view="running">跑步</button>
         </div>
         <section class="panel run-entry-panel">
+          <div class="run-entry-art" aria-hidden="true"></div>
+          <div class="run-form-heading"><h3>记下一次奔跑</h3><p>输入里程和用时，或开启计时后出发。</p></div>
           <form id="runForm" class="stack-form">
             <div class="field-row">
               <label>日期<input id="runDate" type="date" required></label>
               <label>距离 km<input id="runDistance" type="number" min="0.01" step="0.01" placeholder="例如 3.50" required></label>
             </div>
-            <div class="field-row">
+            <div class="field-row run-duration-fields">
               <label>用时 分<input id="runMinutes" type="number" min="0" step="1" placeholder="例如 28"></label>
               <label>秒<input id="runSeconds" type="number" min="0" max="59" step="1" placeholder="例如 30"></label>
               <label>备注<input id="runNote" type="text" placeholder="留空即可"></label>
@@ -107,7 +122,7 @@
           </form>
         </section>
 
-        <section class="panel">
+        <section class="panel run-history-panel">
           <div class="section-head">
             <h3>最近记录</h3>
             <span id="runListMeta">0 次</span>
@@ -125,13 +140,13 @@
           <span class="page-context"><i></i>按日查看</span>
         </div>
 
-        <div class="banner" id="nowBanner"></div>
-
+        <section class="schedule-calendar-shell" aria-label="选择课程日期">
         <div class="period-nav">
-          <button class="secondary-button" id="weekPrevButton" type="button"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg><span>上一周</span></button>
+          <button class="secondary-button" id="weekPrevButton" type="button" aria-label="上一周" title="上一周"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></button>
           <span class="period-label" id="weekNavLabel"></span>
-          <button class="secondary-button" id="weekNextButton" type="button"><span>下一周</span><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button>
+          <button class="secondary-button" id="weekNextButton" type="button" aria-label="下一周" title="下一周"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button>
         </div>
+        <div class="day-tabs" id="dayTabs"></div>
         <details class="panel schedule-tools">
           <summary>本周操作</summary>
           <div class="button-row">
@@ -140,11 +155,11 @@
             <button class="secondary-button" id="clearWeekTitlesButton" type="button">清空本周课名</button>
           </div>
         </details>
-
-        <div class="day-tabs" id="dayTabs"></div>
+        </section>
+        <div class="banner" id="nowBanner"></div>
         <div class="schedule-list" id="scheduleEditor"></div>
 
-        <section class="panel">
+        <section class="panel schedule-report-panel">
           <div class="section-head">
             <h3>周报告</h3>
             <button class="secondary-button" id="weekReportButton" type="button">生成周报告</button>
@@ -166,8 +181,8 @@
           <button class="section-tab" type="button" data-view="settings">设置</button>
         </div>
         <section class="panel report-controls-panel">
-          <div class="field-row">
-            <label>内容
+          <div class="report-filter-heading"><h3>统计范围</h3><span>随记录更新</span></div>
+            <label class="report-kind-field">报告内容
               <select id="reportKind">
                 <option value="stillness">静修</option>
                 <option value="running">跑步</option>
@@ -175,15 +190,20 @@
                 <option value="weekly">每周总结</option>
               </select>
             </label>
-            <label>区间
-              <select id="reportRange">
+            <div class="report-range-field">
+              <span id="reportRangeLabel">统计周期</span>
+              <select id="reportRange" hidden aria-label="报告区间">
                 <option value="day">日</option>
                 <option value="week">周</option>
                 <option value="month">月</option>
               </select>
-            </label>
-          </div>
-          <div class="field-row">
+              <div class="report-range-switch" role="group" aria-labelledby="reportRangeLabel">
+                <button type="button" data-report-range="day" aria-pressed="true">日</button>
+                <button type="button" data-report-range="week" aria-pressed="false">周</button>
+                <button type="button" data-report-range="month" aria-pressed="false">月</button>
+              </div>
+            </div>
+          <div class="report-detail-fields">
             <label id="reportHabitField">静修类型
               <select id="reportHabit">
                 <option value="all">全部</option>
@@ -197,22 +217,28 @@
             </label>
             <label>参考日期<input id="reportDate" type="date"></label>
           </div>
-          <div class="period-nav">
-            <button class="secondary-button" id="periodPrevButton" type="button"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg><span>上一周期</span></button>
-            <span class="period-label" id="periodLabel"></span>
-            <button class="secondary-button" id="periodNextButton" type="button"><span>下一周期</span><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button>
-          </div>
-          <div class="button-row">
-            <button class="secondary-button" id="periodTodayButton" type="button">回到本周期</button>
-            <button class="secondary-button" id="copyReportButton" type="button">复制报告</button>
-            <button class="secondary-button" id="exportReportButton" type="button">导出文本</button>
+          <div class="report-period-toolbar">
+            <button class="secondary-button" id="periodPrevButton" type="button" aria-label="前一天" title="前一天"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></button>
+            <div class="period-current"><span class="period-label" id="periodLabel"></span><button id="periodTodayButton" type="button">回到今天</button></div>
+            <button class="secondary-button" id="periodNextButton" type="button" aria-label="后一天" title="后一天"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg></button>
           </div>
         </section>
 
-        <pre class="report-output" id="reportOutput">选好内容、区间和日期，报告会显示在这里。</pre>
+        <div class="report-output-shell">
+          <div class="report-overview" id="reportOverview" role="group" aria-label="本周期数据概览"></div>
+          <div class="report-sheet-heading">
+            <h3 id="reportSheetTitle">静修日报告</h3>
+            <div class="report-export-actions">
+              <button class="secondary-button" id="copyReportButton" type="button" aria-label="复制报告"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg><span>复制</span></button>
+              <button class="secondary-button" id="exportReportButton" type="button" aria-label="导出报告文本"><svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M4 16v4h16v-4"></path></svg><span>导出</span></button>
+            </div>
+          </div>
+          <div class="report-document" id="reportDocument" role="document" aria-label="报告正文"></div>
+          <pre id="reportOutput" hidden>选好内容、区间和日期，报告会显示在这里。</pre>
+        </div>
 
         <details class="panel manager-panel">
-          <summary>删除记录</summary>
+          <summary>管理本周期记录</summary>
           <div class="manager-list" id="managerList"></div>
         </details>
       </section>
@@ -230,12 +256,14 @@
           <button class="section-tab active" type="button" data-view="settings">设置</button>
         </div>
 
-        <section class="panel">
+        <div class="settings-grid">
+        <section class="panel settings-basics-panel">
+          <div class="section-head"><div class="settings-section-title"><span class="settings-panel-index" aria-hidden="true"><svg class="button-icon" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"></path><circle cx="9" cy="7" r="3"></circle><circle cx="15" cy="17" r="3"></circle></svg></span><div><p class="section-kicker">日常偏好</p><h3>基础设置</h3></div></div></div>
           <form id="settingsForm" class="stack-form">
             <div class="field-row">
               <label>每公里消耗（大卡）<input id="caloriesPerKm" type="number" min="20" max="160" step="1"></label>
             </div>
-            <p class="form-note">热量默认按 1 公里 ≈ 60 大卡估算。每节课程的开始、结束时间请直接在课表卡片中输入。</p>
+            <p class="form-note">用于估算跑步消耗，默认每公里 60 大卡。课程时间可在课表中直接输入。</p>
             <div class="button-row">
               <button class="primary-button" type="submit">保存设置</button>
             </div>
@@ -250,28 +278,31 @@
             <div class="refresh-copy">
               <p class="section-kicker">版本与缓存</p>
               <h3>刷新应用</h3>
-              <p>看不到新界面时，清理本应用的离线缓存并重新载入。你的记录不会被删除。</p>
+              <p>获取最新界面，保留你的记录与计时。暂时离线时，可以继续使用当前版本。</p>
             </div>
           </div>
           <div class="refresh-action-row">
-            <span class="version-chip">当前 v39</span>
+            <span class="version-chip" id="appVersion">当前 v47</span>
             <button class="secondary-button refresh-app-button" id="refreshAppButton" type="button">
               <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.2 8.2A8 8 0 1 0 20 14"></path><path d="m16.5 4.8 3 3.4-4.3.8"></path></svg>
-              <span>清理缓存并刷新</span>
+              <span>刷新到最新</span>
             </button>
           </div>
+          <p class="refresh-feedback" id="refreshFeedback" role="status" aria-live="polite" hidden></p>
         </section>
 
         <section class="panel backup-panel">
           <div class="section-head">
-            <div>
+            <div class="settings-section-title">
+              <span class="settings-panel-index" aria-hidden="true"><svg class="button-icon" viewBox="0 0 24 24"><path d="M4 7h16v13H4zM3 4h18v3H3zM9 12h6"></path></svg></span><div>
               <p class="section-kicker">本机存档</p>
               <h3>数据备份</h3>
+              </div>
             </div>
             <span class="backup-state" id="backupState">尚未读取备份</span>
           </div>
           <div class="backup-summary" id="backupSummary" aria-live="polite">
-            <div class="backup-summary-mark" aria-hidden="true"></div>
+            <div class="backup-summary-mark" aria-hidden="true"><svg class="button-icon" viewBox="0 0 24 24"><path d="M4 7h16v13H4zM3 4h18v3H3zM9 12h6M12 12v4"></path></svg></div>
             <div>
               <strong id="backupSummaryTitle">数据保存在当前浏览器</strong>
               <p id="backupSummaryMeta">换设备或清理浏览器前，请先导出一份 JSON 备份。</p>
@@ -281,36 +312,38 @@
             <button class="secondary-button" id="backupButton" type="button">导出备份</button>
             <label class="file-button">
               <span id="restoreButtonLabel">恢复备份</span>
-              <input id="restoreInput" type="file" accept="application/json">
+              <input id="restoreInput" type="file" accept="application/json" aria-label="选择备份文件恢复">
             </label>
           </div>
           <p class="restore-feedback" id="restoreFeedback" hidden></p>
         </section>
+        </div>
       </section>
     </main>
 
     <nav class="bottom-nav" aria-label="主导航">
+      <div class="nav-emblem" aria-hidden="true"><span class="nav-brand-mark"><img src="assets/app-icon-v46-192.png" alt="" width="40" height="40"></span><span class="nav-brand-copy"><strong>日常</strong><span>小羊工作台</span></span></div>
       <button class="nav-item active" type="button" data-view="home">
-        <span class="nav-glyph"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="17.5" cy="6.5" r="2.5"></circle><path d="m3 18 5.5-7 3.7 4.4 2.6-3.1L21 18"></path><path d="M3 20h18"></path></svg></span>
+        <span class="nav-glyph"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3.5 10 8.5-7 8.5 7M5.5 9v10.5a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9M9.5 20.5v-7h5v7"></path></svg></span>
         <span class="nav-label">今天</span>
       </button>
       <button class="nav-item" type="button" data-view="stillness" data-nav-group="record">
-        <span class="nav-glyph"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19.2 8.2A8 8 0 1 0 20 14"></path><path d="m16.5 4.8 3 3.4-4.3.8"></path><path d="M12 8.5v4.8l3 1.8"></path></svg></span>
+        <span class="nav-glyph"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"></circle><path d="M10 2.5h4M12 2.5V6M18 7l1.5-1.5M12 9.5v4l2.5 1.5"></path></svg></span>
         <span class="nav-label">记录</span>
       </button>
       <button class="nav-item" type="button" data-view="schedule">
-        <span class="nav-glyph"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5c3-.8 5.6-.2 8 1.6v12c-2.4-1.8-5-2.4-8-1.6Z"></path><path d="M20 5.5c-3-.8-5.6-.2-8 1.6v12c2.4-1.8 5-2.4 8-1.6Z"></path><path d="M7 9.5h2.5"></path><path d="M14.5 9.5H17"></path><path d="M7 13h2.5"></path><path d="M14.5 13H17"></path></svg></span>
+        <span class="nav-glyph"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="16" rx="3"></rect><path d="M8 3v4M16 3v4M4 10h16M8 14h3M8 17h6"></path></svg></span>
         <span class="nav-label">课表</span>
       </button>
       <button class="nav-item" type="button" data-view="reports" data-nav-group="more">
-        <span class="nav-glyph"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5.5h10v13H7Z"></path><path d="M7 5.5c0-1.4-1-2.5-2.2-2.5S3 4.1 3 5.5 3.8 8 5 8h2"></path><path d="M17 18.5c0 1.4 1 2.5 2.2 2.5S21 19.9 21 18.5 20.2 16 19 16h-2"></path><path d="M10 9h4"></path><path d="M10 12.5h4"></path></svg></span>
+        <span class="nav-glyph"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="2"></rect><rect x="14" y="4" width="6" height="6" rx="2"></rect><rect x="4" y="14" width="6" height="6" rx="2"></rect><rect x="14" y="14" width="6" height="6" rx="2"></rect></svg></span>
         <span class="nav-label">更多</span>
       </button>
     </nav>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="app-core.js?v=39"></script>
-  <script src="app-ui.js?v=39"></script>
+  <script src="app-core.js?v=47"></script>
+  <script src="app-ui.js?v=47"></script>
 </body>
 </html>

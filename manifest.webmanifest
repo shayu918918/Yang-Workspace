@@ -3,8 +3,11 @@
   "short_name": "小羊工作台",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#e8ede8",
-  "theme_color": "#e8ede8",
+  "background_color": "#f7f3e7",
+  "theme_color": "#f7f3e7",
   "lang": "zh-CN",
-  "icons": []
+  "icons": [
+    { "src": "assets/app-icon-v46-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/app-icon-v46-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
 }

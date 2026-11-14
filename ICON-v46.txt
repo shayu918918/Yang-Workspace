@@ -1,0 +1,24 @@
+小羊工作台 v46 · 山月图标
+
+设计与制作
+采用暖纸白背景、浅青山形、淡金月亮与留白水径。没有文字、羊或卡通形象。
+原画由内置 image_gen 生成，未使用 API / CLI 回退；随后用 sharp 统一尺寸并进行调色板 PNG 压缩。
+
+实际使用的文件
+assets/app-icon-v46-192.png：192 × 192，8,954 字节。
+assets/app-icon-v46-512.png：512 × 512，56,253 字节；用于常规及 maskable 图标，共用一份文件。
+assets/apple-touch-icon-v46.png：180 × 180，8,224 字节。
+assets/favicon-v46-32.png：32 × 32，592 字节。
+四个发布文件共 74,023 字节；全为不透明方形，交由手机系统处理外形遮罩。已检查 32 / 48 / 64 / 128 像素下的识别效果以及圆形裁切。
+
+原图留存
+项目原稿：assets/app-icon-v46-master.png（不打入精简包）。
+生成原稿：C:\Users\Lecoo\.codex\generated_images\01a0494f-ce3a-71e2-bf41-6601299f91d0\exec-e2b4ff3c-9163-4f7b-88f6-3f8921ad15ca.png
+尺寸检查图：tests/artifacts/icon-v46/launcher-sizes.png
+
+完整生成提示词
+Create one finished app icon artwork for an elegant Chinese daily practice and study app, not a mockup.
+Square 1:1 canvas, fully opaque warm ivory background #f7f3e7 covering every pixel to the edges. NO rounded outer square, NO outside shadow, NO device frame.
+A distinctive, beautifully balanced miniature shanshui emblem: two broad organic mountain silhouettes in pale celadon and muted sage green, a small warm pale-gold moon high on the right, and one ivory winding river cut through the lower landscape. Compose as a single centered softly circular medallion, with calm generous ivory negative space around it. All meaningful painted elements entirely within the centered 70% of the square so a circular app mask never cuts them. Mountains have soft flowing Chinese ink-brush contours with very restrained watercolor texture, clean bold silhouettes readable at 32 pixels. Largest foreground mountain medium-light sage #809879, distant mountain pale celadon #bdcbb5, moon #d5be85. Subtly hand-painted, contemporary cultured Chinese aesthetic, a refined small mark that could be printed on a beautiful book cover. Flat, quiet and luminous, not childish.
+Critical: an ICON with very few large shapes and high clarity, NOT a detailed landscape painting. No trees, buildings, birds, people, animals, sheep, mascots, text, Chinese characters, letters, calligraphy, red stamp, black ink, dark forest green field, tiny decorative strokes, gradients with muddy colors, glossy 3D effects, photographic objects, or multiple alternatives.
+

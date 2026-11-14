@@ -1,0 +1,103 @@
+小羊工作台 v47 · 山月淡彩素材来源
+
+本轮八张插画分别使用内置 image_gen 生成，以 v46 山月应用图标为风格参照；随后使用 sharp 缩放并编码为 WebP。没有人物、动物或卡通形象。
+本文件保留每张最终素材的完整提示词、原始生成路径和项目内原稿路径。发布包只含现用 WebP；PNG 原稿与旧版素材保留在开发目录。
+本轮为重新设计插画；与 v46 的体积差是两版实际素材的字节比较，不等同于相同图片的压缩率。
+
+发布素材
+- assets/hero-v47.webp
+- assets/meditation-v47.webp
+- assets/standing-v47.webp
+- assets/reading-v47.webp
+- assets/walking-v47.webp
+- assets/focus-v47.webp
+- assets/baduanjin-v47.webp
+- assets/running-v47.webp
+- assets/paper-v43.webp
+
+四个 v46 应用图标继续使用；其完整提示词和来源单列于 ICON-v46.txt。
+
+hero · assets/hero-v47.webp
+生成方式：内置 image_gen，单张独立生成。
+原始生成路径：C:\Users\Lecoo\.codex\generated_images\01a0494f-ce3a-71e2-bf41-6601299f91d0\exec-1bf23fdb-9f01-4f65-93df-ae171977f212.png
+项目原稿路径：C:\Users\Lecoo\Desktop\小羊工作台\assets\sources-v47\hero.png
+发布尺寸：1440 × 480；WebP 质量参数 68；7,368 字节。
+来源记录：tests/artifacts/art-v47-hero.json
+完整提示词：
+Create a single wide 3:1 watercolor illustration for the homepage title banner of a refined Chinese daily practice app. This is a final production background asset, no text or mockup.
+Match a minimal app emblem of pale sage mountains, a golden moon and ivory winding river: simple organic silhouettes, restrained watercolor paper texture, contemporary quiet Chinese aesthetic.
+Canvas is warm ivory #f7f3e7, fully opaque, edge to edge. On the RIGHT half, only two broad rounded mountain layers in pale celadon #bdcbb5 and muted sage #809879, one small pale golden moon #d5be85 above, and a narrow ivory river winding toward the lower right. The LEFT 48% is almost empty clean ivory for a large Chinese title and one subtitle; faint paper texture only. Soft transitions, generous negative space, few broad forms, lucid warm light. Landscape about 1536 x 512, all shapes balanced within the wide rectangle, no circular medallion or card border. Pale but clearly recognizable hills, not washed-out fog.
+No characters, lettering, symbols, seal, animal, sheep, mascot, person, trees, buildings, detailed natural scenery, photorealism, gradient sky, black strokes, heavy dark green area, 3D, shadow, frame, rounded corners, UI, collage of multiple variants.
+
+meditation · assets/meditation-v47.webp
+生成方式：内置 image_gen，单张独立生成。
+原始生成路径：C:\Users\Lecoo\.codex\generated_images\01a1d87c-b26e-7af0-9ee3-60f7a372a122\exec-8eb21ff1-e00f-49b0-ac25-dde9e22f7403.png
+项目原稿路径：C:\Users\Lecoo\Desktop\小羊工作台\assets\sources-v47\meditation.png
+发布尺寸：768 × 512；WebP 质量参数 68；6,132 字节。
+来源记录：tests/artifacts/art-v47-a.json
+完整提示词：
+Use case: stylized-concept. Asset type: background illustration for a refined Chinese wellbeing app card, wide landscape 3:2, ideally 1536x1024. Style: extremely restrained Chinese watercolor and softly layered handmade-paper collage. Large simple organic silhouettes with subtle paper grain and translucent pigment, gentle irregular edges, only a few forms, no line art outlines and no tiny realistic detail. Warm paper-white #f7f3e7 ground, pale celadon #bdcbb5, sage green #809879, very small pale gold #d5be85 accents. Quiet, elegant, contemporary and grown-up. Compose the recognizable subject in the right 60% of the image, keep the left 35% and the bottom 25% softly open and low-detail for future text. Let all color fade organically into the same warm paper ground; no hard vertical seam or split panel. Flat full-bleed rectangular artwork, not an app screenshot. No lettering, no calligraphy, no seals, no watermark, no frame, no circular crop, no sticker, no animals, no people, no mascot, no cartoon character. Subject: one simple ivory-white lotus flower with five or seven broad overlapping petals and a tiny pale-gold center, floating among just two or three big soft celadon lotus leaves on utterly calm water. The flower sits just right of center; pale ripples are at most two broad watercolor strokes, never a detailed pond. The lotus and leaves must be easy to recognize even in a thumbnail. No mountain landscape, pavilion or garden scenery.
+
+standing · assets/standing-v47.webp
+生成方式：内置 image_gen，单张独立生成。
+原始生成路径：C:\Users\Lecoo\.codex\generated_images\01a1d87c-b26e-7af0-9ee3-60f7a372a122\exec-0eb2e0be-e56c-4283-a846-e555d311b3c2.png
+项目原稿路径：C:\Users\Lecoo\Desktop\小羊工作台\assets\sources-v47\standing.png
+发布尺寸：768 × 512；WebP 质量参数 68；6,642 字节。
+来源记录：tests/artifacts/art-v47-a.json
+完整提示词：
+Use case: stylized-concept. Asset type: background illustration for a refined Chinese wellbeing app card, wide landscape 3:2, ideally 1536x1024. Style: extremely restrained Chinese watercolor and softly layered handmade-paper collage. Large simple organic silhouettes with subtle paper grain and translucent pigment, gentle irregular edges, only a few forms, no line art outlines and no tiny realistic detail. Warm paper-white #f7f3e7 ground, pale celadon #bdcbb5, sage green #809879, very small pale gold #d5be85 accents. Quiet, elegant, contemporary and grown-up. Compose the recognizable subject in the right 60% of the image, keep the left 35% and the bottom 25% softly open and low-detail for future text. Let all color fade organically into the same warm paper ground; no hard vertical seam or split panel. Flat full-bleed rectangular artwork, not an app screenshot. No lettering, no calligraphy, no seals, no watermark, no frame, no circular crop, no sticker, no animals, no people, no mascot, no cartoon character. Subject: one simplified old Chinese pine tree on the right with a softly curved sage-gray trunk and only three broad cloudlike masses of sage needles; imply the needles as solid soft-edged watercolor shapes, no individually drawn needles or bark. One very pale celadon mountain silhouette sits far behind. Calm rooted posture and spaciousness, no rocks with detailed texture, no buildings, no intricate scenic panorama.
+
+reading · assets/reading-v47.webp
+生成方式：内置 image_gen，单张独立生成。
+原始生成路径：C:\Users\Lecoo\.codex\generated_images\01a1d72b-5f58-7642-9560-fe602bc1e30a\exec-be14798b-4a2f-470a-a7d4-4b573147106c.png
+项目原稿路径：C:\Users\Lecoo\Desktop\小羊工作台\assets\sources-v47\reading.png
+发布尺寸：768 × 512；WebP 质量参数 70；5,380 字节。
+来源记录：tests/artifacts/art-v47-b.json
+完整提示词：
+Use case: stylized-concept. Asset type: a single premium app activity-card background illustration, NOT a mockup. New original illustration, 1536 x 1024 pixels, landscape aspect ratio 3:2. Refined minimal Chinese watercolor combined with soft paper-cut-like organic silhouettes. Warm paper-white #f7f3e7 background; a restrained palette of pale celadon #bdcbb5, sage #809879, and a tiny muted gold #d5be85 accent only when specified. Only a few broad, clearly recognizable forms. Delicate natural rice-paper grain and softly feathered pigment edges, quiet modern Chinese aesthetic. No realistic dense scenery, no dense trees, no detailed branches, no fine decorative linework. Subjects mainly in the central-right area. Leftmost 35% and lower 25% should stay predominantly warm pale paper with only an extremely faint wash; natural fade, NOT rectangular zones or a hard split. Clear silhouettes that still read at a small 180px card thumbnail. No text, no calligraphy, no letters or numbers, no seals, no logos, no border, no frame, no circular crop, no people, no animals, no cartoon, no 3D rendering.
+Subject and composition: ONE open book in warm ivory paper, seen from a gentle three-quarter elevated angle, centered at x=68%, y=46%, its gently curved two-page spread and simple sage-colored cover edge unmistakable. No writing or markings on the pages. Beside it, ONE short simplified leaf sprig made of just three broad sage leaves. Behind, only a nearly invisible pale celadon mountain wash. The book is the dominant subject, not a full library, not a desk room. Keep the bottom quarter pale and quiet, with the book ending above that area. No tea, no other objects. The result should feel like a restrained editorial paper illustration, airy but specific and legible.
+
+walking · assets/walking-v47.webp
+生成方式：内置 image_gen，单张独立生成。
+原始生成路径：C:\Users\Lecoo\.codex\generated_images\01a1d72b-5f58-7642-9560-fe602bc1e30a\exec-5bef3656-5509-404f-a8aa-ad2253bc8005.png
+项目原稿路径：C:\Users\Lecoo\Desktop\小羊工作台\assets\sources-v47\walking.png
+发布尺寸：768 × 512；WebP 质量参数 70；3,934 字节。
+来源记录：tests/artifacts/art-v47-b.json
+完整提示词：
+Use case: stylized-concept. Asset type: a single premium app activity-card background illustration, NOT a mockup. New original illustration, 1536 x 1024 pixels, landscape aspect ratio 3:2. Refined minimal Chinese watercolor combined with soft paper-cut-like organic silhouettes. Warm paper-white #f7f3e7 background; a restrained palette of pale celadon #bdcbb5, sage #809879, and a tiny muted gold #d5be85 accent only when specified. Only a few broad, clearly recognizable forms. Delicate natural rice-paper grain and softly feathered pigment edges, quiet modern Chinese aesthetic. No realistic dense scenery, no dense trees, no detailed branches, no fine decorative linework. Subjects mainly in the central-right area. Leftmost 35% and lower 25% should stay predominantly warm pale paper with only an extremely faint wash; natural fade, NOT rectangular zones or a hard split. Clear silhouettes that still read at a small 180px card thumbnail. No text, no calligraphy, no letters or numbers, no seals, no logos, no border, no frame, no circular crop, no people, no animals, no cartoon, no 3D rendering.
+Subject and composition: A fine, relaxed gently curving warm-paper footpath passes between exactly TWO broad low pale-green hill shapes, clustered mainly in the right two-thirds. The nearest hill is a soft sage sweep at x=74%, y=53%; the other is a pale celadon rounded shoulder behind it at x=58%, y=37%. The slender path makes one quiet soft S bend, entering from x=57%, y=73% and receding toward x=75%, y=41%. Keep the landscape small and airy, leave lower quarter warm paper rather than a foreground. No sun or moon, no trees, no distant mountain panorama, no rocks, no structures. This is an intimate walking path between two simple hills, made of softly textured paper-cut watercolor shapes.
+
+focus · assets/focus-v47.webp
+生成方式：内置 image_gen，单张独立生成。
+原始生成路径：C:\Users\Lecoo\.codex\generated_images\01a1d72b-5f58-7642-9560-fe602bc1e30a\exec-abd1cbd3-357f-4c10-b8cf-c5f19d22f7b4.png
+项目原稿路径：C:\Users\Lecoo\Desktop\小羊工作台\assets\sources-v47\focus.png
+发布尺寸：768 × 512；WebP 质量参数 70；4,700 字节。
+来源记录：tests/artifacts/art-v47-b.json
+完整提示词：
+Use case: stylized-concept. Asset type: a single premium app activity-card background illustration, NOT a mockup. New original illustration, 1536 x 1024 pixels, landscape aspect ratio 3:2. Refined minimal Chinese watercolor combined with soft paper-cut-like organic silhouettes. Warm paper-white #f7f3e7 background; a restrained palette of pale celadon #bdcbb5, sage #809879, and a tiny muted gold #d5be85 accent only when specified. Only a few broad, clearly recognizable forms. Delicate natural rice-paper grain and softly feathered pigment edges, quiet modern Chinese aesthetic. No realistic dense scenery, no dense trees, no detailed branches, no fine decorative linework. Subjects mainly in the central-right area. Leftmost 35% and lower 25% should stay predominantly warm pale paper with only an extremely faint wash; natural fade, NOT rectangular zones or a hard split. Clear silhouettes that still read at a small 180px card thumbnail. No text, no calligraphy, no letters or numbers, no seals, no logos, no border, no frame, no circular crop, no people, no animals, no cartoon, no 3D rendering.
+Subject and composition: A very simple abstract warm-paper desktop suggested by one soft wash, occupying central-right. On it is ONE closed small sage-gray notebook, one slender writing brush or pen resting diagonally beside it, and one tiny low inkstone reduced to a soft dark-sage oval. The closed notebook is at x=67%, y=48%; its single flat cover and tidy rectangular silhouette are recognizable. A small muted gold moon floats in the upper right at x=81%, y=23%. NOT an open book: no visible page spread, no leaves, no tea, no indoor room, no window, no ornate table legs. Very few large forms, gentle calm concentration, clearly distinct from a reading illustration. Fade naturally to paper below the objects.
+
+baduanjin · assets/baduanjin-v47.webp
+生成方式：内置 image_gen，单张独立生成。
+原始生成路径：C:\Users\Lecoo\.codex\generated_images\01a1d87c-b26e-7af0-9ee3-60f7a372a122\exec-7d4da988-438e-4d73-8985-d2a4f722dc34.png
+项目原稿路径：C:\Users\Lecoo\Desktop\小羊工作台\assets\sources-v47\baduanjin.png
+发布尺寸：768 × 512；WebP 质量参数 68；7,264 字节。
+来源记录：tests/artifacts/art-v47-a.json
+完整提示词：
+Use case: stylized-concept. Asset type: background illustration for a refined Chinese wellbeing app card, wide landscape 3:2, ideally 1536x1024. Style: extremely restrained Chinese watercolor and softly layered handmade-paper collage. Large simple organic silhouettes with subtle paper grain and translucent pigment, gentle irregular edges, only a few forms, no line art outlines and no tiny realistic detail. Warm paper-white #f7f3e7 ground, pale celadon #bdcbb5, sage green #809879, very small pale gold #d5be85 accents. Quiet, elegant, contemporary and grown-up. Compose the recognizable subject in the right 60% of the image, keep the left 35% and the bottom 25% softly open and low-detail for future text. Let all color fade organically into the same warm paper ground; no hard vertical seam or split panel. Flat full-bleed rectangular artwork, not an app screenshot. No lettering, no calligraphy, no seals, no watermark, no frame, no circular crop, no sticker, no animals, no people, no mascot, no cartoon character. Subject: two or three slender gently rising bamboo stems on the right, with a few broad, graceful sage and pale-celadon leaf clusters stretching diagonally in a slow balanced rhythm. A small pale-gold sun hangs behind the upper leaves. Each leaf is a simple filled watercolor silhouette. Open pale paper space surrounds the bamboo, no bamboo forest, no bridge, no room, no detailed landscape. This is a quiet visual for a gentle movement practice, without showing any person.
+
+running · assets/running-v47.webp
+生成方式：内置 image_gen，单张独立生成。
+原始生成路径：C:\Users\Lecoo\.codex\generated_images\01a1d72b-5f58-7642-9560-fe602bc1e30a\exec-24f58080-fc7c-48fd-8f0c-c87afba46126.png
+项目原稿路径：C:\Users\Lecoo\Desktop\小羊工作台\assets\sources-v47\running.png
+发布尺寸：768 × 512；WebP 质量参数 70；5,178 字节。
+来源记录：tests/artifacts/art-v47-b.json
+完整提示词：
+Use case: stylized-concept. Asset type: a single premium app activity-card background illustration, NOT a mockup. New original illustration, 1536 x 1024 pixels, landscape aspect ratio 3:2. Refined minimal Chinese watercolor combined with soft paper-cut-like organic silhouettes. Warm paper-white #f7f3e7 background; a restrained palette of pale celadon #bdcbb5, sage #809879, and a tiny muted gold #d5be85 accent only when specified. Only a few broad, clearly recognizable forms. Delicate natural rice-paper grain and softly feathered pigment edges, quiet modern Chinese aesthetic. No realistic dense scenery, no dense trees, no detailed branches, no fine decorative linework. Subjects mainly in the central-right area. Leftmost 35% and lower 25% should stay predominantly warm pale paper with only an extremely faint wash; natural fade, NOT rectangular zones or a hard split. Clear silhouettes that still read at a small 180px card thumbnail. No text, no calligraphy, no letters or numbers, no seals, no logos, no border, no frame, no circular crop, no people, no animals, no cartoon, no 3D rendering.
+Subject and composition: An expansive, open gently rising landscape formed by TWO or THREE long low overlapping hill silhouettes, stretching diagonally upward across the middle-right. A broad, clean warm-paper trail flows from the lower-middle rightward and upward to the far-right ridge in ONE energetic sweeping diagonal curve, not a small S-shaped walking path. Place a small muted-gold morning sun at x=75%, y=24%, above the broad hills. Hills should be wide horizontal shapes, rather than tall mountain peaks. The dominant feeling is open space and forward movement, with ample breathing room. No trees, no city, no runner, no elaborate distant scenery. Bottom quarter and leftmost third remain very pale paper; use only soft natural faded washes there. Distinct from the close two-hill walking scene: wider horizon, longer diagonal trail, small rising sun.
+
+沿用素材与体积
+assets/paper-v43.webp：沿用宣纸底纹，本轮未重新生成，无新增提示词。历史原图保留于 assets/xuan-paper-ui.png。
+九张配图/底纹共 48,000 字节；上一版为 298,282 字节。
+四个沿用图标共 74,023 字节；全部运行图片共 122,023 字节。
+具体尺寸、文件字节和 SHA256 见 ASSETS-v47.json。
